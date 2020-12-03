@@ -25,13 +25,33 @@ SOURCES += ui/mainwindow.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
-    ui/viewformat.cpp
+    ui/viewformat.cpp \
+    src_blin/Cylinder.cpp \
+    src_blin/Shape.cpp \
+    src_blin/glwidget.cpp \
+    src_blin/DOL.cpp \
+    cs123_lib/resourceloader.cpp \
+    datatype/IBO.cpp \
+    datatype/VAO.cpp \
+    datatype/VBO.cpp \
+    datatype/VBOAttribMarker.cpp
 
 HEADERS += ui/mainwindow.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
-    ui/viewformat.h
+    ui/viewformat.h \
+    src_blin/Cylinder.h \
+    src_blin/Shape.h \
+    src_blin/glwidget.h \
+    src_blin/DOL.h \
+    cs123_lib/resourceloader.h \
+    shaders/ShaderAttribLocations.h \
+    datatype/IBO.h \
+    datatype/VAO.h \
+    datatype/VBO.h \
+    datatype/VBOAttribMarker.h
+
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include
