@@ -4,7 +4,6 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <iostream>
-#include "shapes/CylinderShape.h"
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     m_time(), m_timer(), m_captureMouse(false)
@@ -23,7 +22,6 @@ View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
     // The update loop is implemented using a timer
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(tick()));
 
-    //m_shape = std::make_unique<CylinderShape>(12, 16);
 }
 
 View::~View()
@@ -54,15 +52,15 @@ void View::initializeGL() {
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
-    m_shape = std::make_unique<CylinderShape>(12, 16);
+    m_scene = std::make_unique<SceneviewScene>();
+
 }
 
 void View::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    m_shape->draw();
-
     // TODO: Implement the demo rendering here
+    m_scene->render();
 }
 
 void View::resizeGL(int w, int h) {

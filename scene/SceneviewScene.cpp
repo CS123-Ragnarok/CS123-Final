@@ -16,8 +16,11 @@
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
 
-using namespace CS123::GL;
+#include <list>
 
+#include <iostream>
+
+using namespace CS123::GL;
 
 SceneviewScene::SceneviewScene()
 {
@@ -30,6 +33,12 @@ SceneviewScene::SceneviewScene()
     m_cylinder = std::make_unique<CylinderShape>(1, 20);
     m_sphere = std::make_unique<SphereShape>(20, 20);
 
+    paintTrees();
+
+    m_testLight.type = LightType::LIGHT_DIRECTIONAL;
+    m_testLight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+    m_testLight.color = glm::vec4(1.0f);
+
     m_timer.start(1000.0f / m_fps);
     m_increment = 0;
 }
@@ -39,11 +48,86 @@ SceneviewScene::~SceneviewScene()
 }
 
 void SceneviewScene::loadPhongShader() {
-    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.vert");
-    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/shader.frag");
+    std::string vertexSource = ResourceLoader::loadResourceFileToString(":/shaders/default.vert");
+    std::string fragmentSource = ResourceLoader::loadResourceFileToString(":/shaders/default.frag");
     m_phongShader = std::make_unique<CS123Shader>(vertexSource, fragmentSource);
 }
 
+CS123ScenePrimitive SceneviewScene::getBranch(){
+    CS123ScenePrimitive res;
+    res.type = PrimitiveType::PRIMITIVE_CYLINDER;
+    res.material.cAmbient = glm::vec4(139.0f / 255.0f, 69.0f / 255.0f, 19.0f / 255.0f, 1.0f);
+    res.material.cDiffuse = glm::vec4(0.5f);
+    res.material.cSpecular = glm::vec4(0.5f);
+    res.material.shininess = 1.0f;
+    return res;
+}
+
+void SceneviewScene::paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle){
+    /*
+    place :
+
+
+    */
+    int size = lTree.size();
+    glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 d = dir.xyz();
+    glm::vec3 a = glm::cross(y, d);
+
+    float omega = glm::acos(glm::dot(y, d));
+
+    glm::mat4 base = glm::translate(glm::vec3(0.0f, scale * 1.0f, 0.0f)) * glm::scale(glm::vec3(scale * 0.5f, scale * 2.0f, scale * 0.5f));
+    glm::mat4 cur_rotation = glm::rotate(omega, a);
+    glm::vec4 cur_translation = place;
+    std::list<glm::mat4> rotations;
+    std::list<glm::vec4> translations;
+
+    for(int i = 0; i < size; i++){
+        char c = lTree[i];
+        switch (c) {
+        case 'f':
+            m_primitives.push_back(getBranch());
+            m_trans.push_back(glm::translate(cur_translation.xyz()) * cur_rotation * base);
+            cur_translation += scale * glm::normalize(cur_rotation * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f));
+            break;
+        case '+':
+            cur_rotation = glm::rotate( angle, (cur_rotation * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '-':
+            cur_rotation = glm::rotate(-angle, (cur_rotation * glm::vec4(1.0f, 0.0f, 0.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '&':
+            cur_rotation = glm::rotate( angle, (cur_rotation * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '^':
+            cur_rotation = glm::rotate(-angle, (cur_rotation * glm::vec4(0.0f, 1.0f, 0.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '\\':
+            cur_rotation = glm::rotate( angle, (cur_rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '/':
+            cur_rotation = glm::rotate(-angle, (cur_rotation * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)).xyz()) * cur_rotation;
+            break;
+        case '[':
+            rotations.push_back(cur_rotation);
+            translations.push_back(cur_translation);
+            break;
+        case ']':
+            cur_rotation = rotations.back();
+            cur_translation = translations.back();
+            rotations.pop_back();
+            translations.pop_back();
+            break;
+        }
+
+    }
+}
+
+void SceneviewScene::paintTrees(){
+    m_primitives.push_back(getBranch());
+    m_trans.push_back(glm::mat4());
+    paintTree(glm::vec4(0.0f), glm::vec4(1.0f / sqrt(6), 2.0f / sqrt(6), 1.0f / sqrt(6),0.0f), "f[-f][+f]f", 1.0f, glm::radians(90.0f));
+}
 
 void SceneviewScene::render() {
     glClearColor(0, 0, 0, 0);
@@ -60,10 +144,34 @@ void SceneviewScene::render() {
 
 void SceneviewScene::setSceneUniforms() {
 //    Camera *camera = context->getCamera();
-//    m_phongShader->setUniform("useLighting", settings.useLighting);
+    m_phongShader->setUniform("useLighting", true);
 //    m_phongShader->setUniform("useArrowOffsets", false);
 //    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
 //    m_phongShader->setUniform("v", camera->getViewMatrix());
+
+
+    //float time = m_increment++ / (float) m_fps;      // Time in seconds.
+
+    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
+    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
+    float aspectRatio = 1.03257f;
+    float nearClipPlane = 0.1f;                      // Near clipping plane.
+    float farClipPlane = 100.f;                      // Far clipping plane.
+
+    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
+    // y is always equal to 1. (Task 7)
+
+    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
+    glm::vec3 eye = glm::vec3(-4.0f, 4.0f, 4.0f);        // Camera position.
+    glm::vec3 center = glm::vec3(0.f, 0.f, 0.f);     // Where camera is looking.
+    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
+
+    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
+    glm::mat4 view = glm::lookAt(eye, center, up);
+    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
+
+    m_phongShader->setUniform("p", perspective);
+    m_phongShader->setUniform("v", view);
 }
 
 void SceneviewScene::setMatrixUniforms(Shader *shader) {
@@ -105,6 +213,7 @@ void SceneviewScene::setLights()
 //    {
 //        m_phongShader->setLight(light);
 //    }
+    m_phongShader->setLight(m_testLight);
 }
 
 void SceneviewScene::renderGeometry() {
@@ -139,6 +248,27 @@ void SceneviewScene::renderGeometry() {
 //            break;
 //        }
 //    }
+    int size = m_primitives.size();
+    for(int i = 0; i < size; i++){
+        CS123ScenePrimitive p = m_primitives[i];
+        glm::mat4 t = m_trans[i];
+        m_phongShader->applyMaterial(p.material);
+        m_phongShader->setUniform("m", t);
+        switch(p.type){
+        case PrimitiveType::PRIMITIVE_CUBE:
+            m_cube->draw();
+            break;
+        case PrimitiveType::PRIMITIVE_CONE:
+            m_cone->draw();
+            break;
+        case PrimitiveType::PRIMITIVE_CYLINDER:
+            m_cylinder->draw();
+            break;
+        case PrimitiveType::PRIMITIVE_SPHERE:
+            m_sphere->draw();
+            break;
+        }
+    }
 
 }
 

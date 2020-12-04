@@ -5,7 +5,7 @@
 #include <qgl.h>
 #include <QTime>
 #include <QTimer>
-#include "shapes/CylinderShape.h"
+#include "scene/SceneviewScene.h"
 
 
 class View : public QGLWidget {
@@ -31,7 +31,7 @@ private:
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
-    std::unique_ptr<CylinderShape> m_shape;
+    std::unique_ptr<SceneviewScene> m_scene;
 
 private slots:
     void tick();

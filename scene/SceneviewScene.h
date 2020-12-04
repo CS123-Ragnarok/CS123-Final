@@ -6,6 +6,9 @@
 #include "shapes/CubeShape.h"
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
+#include "lib/CS123SceneData.h"
+
+#include <string>
 #include <QTimer>
 
 #include <memory>
@@ -45,7 +48,7 @@ public:
     // pointer.  This will be used during the "modeler" lab, so don't worry about it for now.
     void setSelection(int x, int y);
 
-private:
+protected:
 
 private:
 
@@ -56,6 +59,11 @@ private:
     void setMatrixUniforms(CS123::GL::Shader *shader);
     void setLights();
     void renderGeometry();
+
+    void paintTrees();
+    void paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle);
+
+    CS123ScenePrimitive getBranch();
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
@@ -70,6 +78,13 @@ private:
      const float m_fps = 60.0f;
      QTimer m_timer;
      int m_increment;
+
+     std::vector<CS123ScenePrimitive> m_primitives;
+     std::vector<glm::mat4> m_trans;
+
+     CS123SceneLightData m_testLight;
+
+
 
 
 };
