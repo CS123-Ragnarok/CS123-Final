@@ -6,6 +6,7 @@
 #include "shapes/CubeShape.h"
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
+#include <QTimer>
 
 #include <memory>
 
@@ -65,6 +66,11 @@ private:
     std::unique_ptr<ConeShape> m_cone;
     std::unique_ptr<CylinderShape> m_cylinder;
     std::unique_ptr<SphereShape> m_sphere;
+
+     const float m_fps = 60.0f;
+     QTimer m_timer;
+     int m_increment;
+
 
 };
 

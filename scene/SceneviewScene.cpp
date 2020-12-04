@@ -2,6 +2,11 @@
 #include "GL/glew.h"
 #include <QGLWidget>
 #include "camera/Camera.h"
+#include <QObject>
+
+#include "glm/glm.hpp"            // glm::vec*, mat*, and basic glm functions
+#include "glm/gtx/transform.hpp"  // glm::translate, scale, rotate
+#include "glm/gtc/type_ptr.hpp"   // glm::value_ptr
 
 
 #include "lib/ResourceLoader.h"
@@ -24,6 +29,9 @@ SceneviewScene::SceneviewScene()
     m_cone = std::make_unique<ConeShape>(1, 20);
     m_cylinder = std::make_unique<CylinderShape>(1, 20);
     m_sphere = std::make_unique<SphereShape>(20, 20);
+
+    m_timer.start(1000.0f / m_fps);
+    m_increment = 0;
 }
 
 SceneviewScene::~SceneviewScene()
@@ -61,6 +69,29 @@ void SceneviewScene::setSceneUniforms() {
 void SceneviewScene::setMatrixUniforms(Shader *shader) {
 //    shader->setUniform("p", context->getCamera()->getProjectionMatrix());
 //    shader->setUniform("v", context->getCamera()->getViewMatrix());
+    float time = m_increment++ / (float) m_fps;      // Time in seconds.
+
+    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
+    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
+    float aspectRatio = 1.03257f;
+    float nearClipPlane = 0.1f;                      // Near clipping plane.
+    float farClipPlane = 100.f;                      // Far clipping plane.
+
+    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
+    // y is always equal to 1. (Task 7)
+
+    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
+    glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
+    glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
+    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
+
+    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
+    glm::mat4 view = glm::lookAt(eye, center, up);
+    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
+
+    shader->setUniform("p", perspective);
+    shader->setUniform("v", view);
+
 }
 
 void SceneviewScene::setLights()
