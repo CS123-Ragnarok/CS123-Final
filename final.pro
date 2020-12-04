@@ -29,7 +29,8 @@ SOURCES += ui/mainwindow.cpp \
     src_blin/Cylinder.cpp \
     src_blin/Shape.cpp \
     src_blin/glwidget.cpp \
-    src_blin/DOL.cpp \
+    src_blin/LSystem.cpp \
+    src_blin/MeshGenerator.cpp \
     cs123_lib/resourceloader.cpp \
     datatype/IBO.cpp \
     datatype/VAO.cpp \
@@ -44,13 +45,15 @@ HEADERS += ui/mainwindow.h \
     src_blin/Cylinder.h \
     src_blin/Shape.h \
     src_blin/glwidget.h \
-    src_blin/DOL.h \
+    src_blin/LSystem.h \
+    src_blin/MeshGenerator.h \
     cs123_lib/resourceloader.h \
     shaders/ShaderAttribLocations.h \
     datatype/IBO.h \
     datatype/VAO.h \
     datatype/VBO.h \
-    datatype/VBOAttribMarker.h
+    datatype/VBOAttribMarker.h \
+    datatype/CS123SceneData.h
 
 
 FORMS += ui/mainwindow.ui

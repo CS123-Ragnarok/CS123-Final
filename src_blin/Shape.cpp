@@ -51,12 +51,4 @@ void Shape::update_m_vtx(float x, float y, float z, std::vector<float> normal){
     m_vertexData.insert(m_vertexData.end(), normal.begin(), normal.end());
 }
 
-glm::vec3 Shape::crossProduct(glm::vec3 v_A, glm::vec3 v_B)
-{
 
-   float token_0 = v_A[1] * v_B[2] - v_A[2] * v_B[1];
-   float token_1 = -(v_A[0] * v_B[2] - v_A[2] * v_B[0]);
-   float token_2 = v_A[0] * v_B[1] - v_A[1] * v_B[0];
-   glm::vec3 v3 = {token_0, token_1, token_2};
-   return v3;
-}

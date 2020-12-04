@@ -1,7 +1,6 @@
 #include "glwidget.h"
 
 #include "cs123_lib/resourceloader.h"
-#include "cs123_lib/errorchecker.h"
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include <iostream>
