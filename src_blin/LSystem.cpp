@@ -41,3 +41,12 @@ std::string LSystem::derivation(int depth)
     return m_base;
 }
 
+void LSystem::clear_rules()
+{
+    m_rules.clear();
+}
+
+void LSystem::remove_rule(char key){
+    m_rules.erase(key);
+}
+

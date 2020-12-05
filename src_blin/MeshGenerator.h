@@ -19,10 +19,11 @@ public:
     void GenerateMesh(std::string system, int iterations, glm::vec3 startingPoint, float radius);
 
     int points_per_lvl = 6;
+    std::shared_ptr<LSystem> m_lsystem;
 
 
 private:
-    LSystem *m_lsystem;
+
 
     float rotationOffset = M_PI / 8.0f;
     float scaleOffset = 2.0f;

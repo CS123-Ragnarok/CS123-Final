@@ -8,6 +8,7 @@
 using namespace CS123::GL;
 
 MeshGenerator::MeshGenerator(){
+   m_lsystem = std::make_shared<LSystem>();
 
 }
 MeshGenerator::~MeshGenerator(){
@@ -16,6 +17,7 @@ MeshGenerator::~MeshGenerator(){
 
 
 void MeshGenerator::draw(){
+
     if (m_VAO) {
         m_VAO->bind();
         m_VAO->draw();
@@ -33,8 +35,6 @@ void MeshGenerator::buildVAO(){
     VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);
     m_VAO = std::make_unique<VAO>(vbo, numVertices);
 }
-
-
 
 
 void MeshGenerator::GenerateMesh(std::string L_base, int iterations,

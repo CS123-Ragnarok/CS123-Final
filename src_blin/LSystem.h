@@ -18,6 +18,9 @@ public:
     void add_rules(char precessor, std::string successor);
     void change_base( std::string new_base);
     std::string derivation(int depth);
+    void clear_rules();
+    void remove_rule(char key);
+
 
 
 private:
