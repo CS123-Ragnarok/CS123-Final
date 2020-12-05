@@ -33,7 +33,10 @@ SceneviewScene::SceneviewScene()
     m_cylinder = std::make_unique<CylinderShape>(1, 20);
     m_sphere = std::make_unique<SphereShape>(20, 20);
 
-    paintTrees();
+    m_tree = std::make_unique<MeshGenerator>();
+    m_tree->GenerateMesh("+TT+F", 0, glm::vec3(0.0f), 1.0f);
+
+    //paintTrees();
 
     m_testLight.type = LightType::LIGHT_DIRECTIONAL;
     m_testLight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
@@ -248,27 +251,33 @@ void SceneviewScene::renderGeometry() {
 //            break;
 //        }
 //    }
-    int size = m_primitives.size();
-    for(int i = 0; i < size; i++){
-        CS123ScenePrimitive p = m_primitives[i];
-        glm::mat4 t = m_trans[i];
-        m_phongShader->applyMaterial(p.material);
-        m_phongShader->setUniform("m", t);
-        switch(p.type){
-        case PrimitiveType::PRIMITIVE_CUBE:
-            m_cube->draw();
-            break;
-        case PrimitiveType::PRIMITIVE_CONE:
-            m_cone->draw();
-            break;
-        case PrimitiveType::PRIMITIVE_CYLINDER:
-            m_cylinder->draw();
-            break;
-        case PrimitiveType::PRIMITIVE_SPHERE:
-            m_sphere->draw();
-            break;
-        }
-    }
+//    int size = m_primitives.size();
+//    for(int i = 0; i < size; i++){
+//        CS123ScenePrimitive p = m_primitives[i];
+//        glm::mat4 t = m_trans[i];
+//        m_phongShader->applyMaterial(p.material);
+//        m_phongShader->setUniform("m", t);
+//        switch(p.type){
+//        case PrimitiveType::PRIMITIVE_CUBE:
+//            m_cube->draw();
+//            break;
+//        case PrimitiveType::PRIMITIVE_CONE:
+//            m_cone->draw();
+//            break;
+//        case PrimitiveType::PRIMITIVE_CYLINDER:
+//            m_cylinder->draw();
+//            break;
+//        case PrimitiveType::PRIMITIVE_SPHERE:
+//            m_sphere->draw();
+//            break;
+//        }
+//    }
+
+    CS123ScenePrimitive p = getBranch();
+    m_phongShader->applyMaterial(p.material);
+    m_phongShader->setUniform("m", glm::mat4());
+    m_tree->draw();
+
 
 }
 

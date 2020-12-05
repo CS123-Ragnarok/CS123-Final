@@ -7,6 +7,7 @@
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
 #include "lib/CS123SceneData.h"
+#include "src_blin/MeshGenerator.h"
 
 #include <string>
 #include <QTimer>
@@ -69,6 +70,8 @@ private:
     std::unique_ptr<CS123::GL::Shader> m_wireframeShader;
     std::unique_ptr<CS123::GL::Shader> m_normalsShader;
     std::unique_ptr<CS123::GL::Shader> m_normalsArrowShader;
+
+    std::unique_ptr<MeshGenerator> m_tree;
 
     std::unique_ptr<CubeShape> m_cube;
     std::unique_ptr<ConeShape> m_cone;
