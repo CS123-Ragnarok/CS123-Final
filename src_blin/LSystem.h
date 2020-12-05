@@ -17,7 +17,7 @@ public:
     ~LSystem();
     void add_rules(char precessor, std::string successor);
     void change_base( std::string new_base);
-    void derivation(int depth);
+    std::string derivation(int depth);
 
 
 private:

@@ -19,7 +19,7 @@ void LSystem::change_base(std::string new_base)
    m_base = new_base;
 }
 
-void LSystem::derivation(int depth)
+std::string LSystem::derivation(int depth)
 {
     while(depth > 0)
     {
@@ -38,6 +38,6 @@ void LSystem::derivation(int depth)
         }
         m_base = token;
     }
-    return;
+    return m_base;
 }
 

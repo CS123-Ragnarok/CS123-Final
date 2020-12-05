@@ -16,6 +16,11 @@ public:
     void draw();
     void buildVAO();
 
+    void GenerateMesh(std::string system, int iterations, glm::vec3 startingPoint, float radius);
+
+    int points_per_lvl = 6;
+
+
 private:
     LSystem *m_lsystem;
 
@@ -26,9 +31,25 @@ private:
     std::vector<GLfloat> m_vertexData;
     std::unique_ptr<CS123::GL::VAO> m_VAO;
 
-     glm::vec3 crossProduct(glm::vec3 v_A, glm::vec3 v_B);
+     std::vector<std::vector<glm::vec3>> generate_vertice(std::vector<std::pair<glm::vec3, float>> points_list);
 
-    void GenerateMesh(std::string system, int iterations, std::string modelName, glm::vec3 startingPoint, float radius, int pointsPerLevel);
+     void create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
+                      std::vector<std::pair<glm::vec3, float>> points_list,
+                      std::vector<int> close_index);
+
+     void add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+
+     void add_single_vertex(glm::vec3 point, glm::vec3 normal);
+
+
+
+
+    glm::mat3 rotate_up(float rad);
+    glm::mat3 rotate_left(float rad);
+    glm::mat3 rotate_head(float rad);
+
+
+
 };
 
 
