@@ -4,9 +4,10 @@
 #include <QApplication>
 #include <QKeyEvent>
 #include <iostream>
+#include "OrbitingCamera.h"
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
-    m_time(), m_timer(), m_captureMouse(false)
+    m_time(), m_timer(), m_captureMouse(false), m_isDragging(false), m_defaultOrbitingCamera(new OrbitingCamera())
 {
     // View needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
@@ -66,7 +67,11 @@ void View::resizeGL(int w, int h) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-
+    if (event->button() == Qt::RightButton) {
+        m_defaultOrbitingCamera.get()->mouseDown(event->x(), event->y());
+        m_isDragging = true;
+        update();
+    }
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
@@ -85,16 +90,29 @@ void View::mouseMoveEvent(QMouseEvent *event) {
 
         // TODO: Handle mouse movements here
     }
+    if (m_isDragging) {
+        m_defaultOrbitingCamera.get()->mouseDragged(event->x(), event->y());
+        update();
+    }
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event) {
-
+    if (m_isDragging && event->button() == Qt::RightButton) {
+        m_defaultOrbitingCamera.get()->mouseUp(event->x(), event->y());
+        m_isDragging = false;
+        update();
+    }
 }
 
 void View::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape) QApplication::quit();
 
     // TODO: Handle keyboard presses here
+}
+
+void View::wheelEvent(QWheelEvent *event) {
+    m_defaultOrbitingCamera.get()->mouseScrolled(event->delta());
+    update();
 }
 
 void View::keyReleaseEvent(QKeyEvent *event) {

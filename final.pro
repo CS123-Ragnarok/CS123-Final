@@ -24,18 +24,59 @@ win32 {
 SOURCES += ui/mainwindow.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
+    terrain/terrain.cpp \
+    terrain/openglshape.cpp \
     ui/view.cpp \
-    ui/viewformat.cpp
+    ui/viewformat.cpp \
+    lib/ResourceLoader.cpp \
+    gl/shaders/Shader.cpp \
+    gl/GLDebug.cpp \
+    gl/datatype/VBOAttribMarker.cpp \
+    gl/datatype/VBO.cpp \
+    gl/datatype/IBO.cpp \
+    gl/datatype/VAO.cpp \
+    gl/datatype/FBO.cpp \
+    gl/textures/Texture.cpp \
+    gl/textures/Texture2D.cpp \
+    gl/textures/TextureParameters.cpp \
+    gl/textures/TextureParametersBuilder.cpp \
+    gl/textures/RenderBuffer.cpp \
+    gl/textures/DepthBuffer.cpp \
+    gl/shaders/CS123Shader.cpp \
+    gl/util/FullScreenQuad.cpp \
+    camera/OrbitingCamera.cpp
 
 HEADERS += ui/mainwindow.h \
+    terrain/terrain.h \
+    terrain/openglshape.h \
     ui_mainwindow.h \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
-    ui/viewformat.h
+    ui/viewformat.h \
+    gl/shaders/Shader.h \
+    gl/GLDebug.h \
+    gl/shaders/ShaderAttribLocations.h \
+    gl/datatype/VBOAttribMarker.h \
+    gl/datatype/VBO.h \
+    gl/datatype/IBO.h \
+    gl/datatype/VAO.h \
+    gl/datatype/FBO.h \
+    gl/textures/Texture.h \
+    gl/textures/Texture2D.h \
+    gl/textures/TextureParameters.h \
+    gl/textures/TextureParametersBuilder.h \
+    gl/textures/RenderBuffer.h \
+    gl/textures/DepthBuffer.h \
+    gl/shaders/CS123Shader.h \
+    gl/util/FullScreenQuad.h \
+    lib/CS123SceneData.h \
+    lib/ResourceLoader.h \
+    camera/Camera.h \
+    camera/OrbitingCamera.h
 
 FORMS += ui/mainwindow.ui
-INCLUDEPATH += glm ui glew-1.10.0/include
-DEPENDPATH += glm ui glew-1.10.0/include
+INCLUDEPATH += glm ui glew-1.10.0/include lib camera
+DEPENDPATH += glm ui glew-1.10.0/include lib camera
 
 DEFINES += _USE_MATH_DEFINES
 DEFINES += TIXML_USE_STL

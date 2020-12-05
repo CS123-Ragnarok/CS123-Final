@@ -5,6 +5,7 @@
 #include <qgl.h>
 #include <QTime>
 #include <QTimer>
+#include "OrbitingCamera.h"
 
 class View : public QGLWidget {
     Q_OBJECT
@@ -17,6 +18,8 @@ private:
     QTime m_time;
     QTimer m_timer;
     bool m_captureMouse;
+    bool m_isDragging;
+    std::unique_ptr<OrbitingCamera> m_defaultOrbitingCamera;
 
     void initializeGL();
     void paintGL();
@@ -25,6 +28,7 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
