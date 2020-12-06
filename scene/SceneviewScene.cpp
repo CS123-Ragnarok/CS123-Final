@@ -1,7 +1,6 @@
 #include "SceneviewScene.h"
 #include "GL/glew.h"
 #include <QGLWidget>
-#include "camera/Camera.h"
 #include <QObject>
 
 #include "glm/glm.hpp"            // glm::vec*, mat*, and basic glm functions
@@ -34,7 +33,11 @@ SceneviewScene::SceneviewScene()
     m_sphere = std::make_unique<SphereShape>(20, 20);
 
     m_tree = std::make_unique<MeshGenerator>();
-    m_tree->GenerateMesh("+TT+F", 0, glm::vec3(0.0f), 1.0f);
+   // m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+   // m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
+    m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
+    //m_tree->m_lsystem->add_rules('B', "XXYYYYYYYYFRFzzFRRC");
+    m_tree->GenerateMesh("+TT+R", 5, glm::vec3(0.0f), 1.0f);
 
     //paintTrees();
 
@@ -165,8 +168,8 @@ void SceneviewScene::setSceneUniforms() {
     // y is always equal to 1. (Task 7)
 
     //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
-    glm::vec3 eye = glm::vec3(-4.0f, 4.0f, 4.0f);        // Camera position.
-    glm::vec3 center = glm::vec3(0.f, 0.f, 0.f);     // Where camera is looking.
+    glm::vec3 eye = glm::vec3(20.0f, 10.0f, 20.0f);        // Camera position.
+    glm::vec3 center = glm::vec3(0.f, 5.f, 0.f);     // Where camera is looking.
     glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
 
     // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
@@ -191,8 +194,8 @@ void SceneviewScene::setMatrixUniforms(Shader *shader) {
     // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
     // y is always equal to 1. (Task 7)
 
-    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
-    glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
+    glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
+    //glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
     glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
     glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
 
@@ -277,6 +280,7 @@ void SceneviewScene::renderGeometry() {
     m_phongShader->applyMaterial(p.material);
     m_phongShader->setUniform("m", glm::mat4());
     m_tree->draw();
+    //m_sphere->draw();
 
 
 }

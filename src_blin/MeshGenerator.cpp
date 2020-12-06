@@ -3,7 +3,7 @@
 #include "gl/datatype/VBO.h"
 #include "gl/datatype/VBOAttribMarker.h"
 #include "gl/shaders/ShaderAttribLocations.h"
-
+#include <iostream>
 
 using namespace CS123::GL;
 
@@ -51,6 +51,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
     std::vector<int> close_index;
     m_lsystem->change_base(L_base);
     std::string system = m_lsystem->derivation(iterations);
+    std::cout<<"generated system: "<<system<<std::endl;
     glm::vec3 direction = glm::vec3(0, 1, 0);
     glm::vec3 pos = start_pos;
     for(int i = 0; i < system.size(); i++)
@@ -115,13 +116,13 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
             break;
         }
 
-        //generate vertices for mesh
-        std::vector<std::vector<glm::vec3>> mesh_list = MeshGenerator::generate_vertice(points_list);
-        //generate mesh
-        MeshGenerator::create_mesh(mesh_list, points_list,close_index);
-
-
     }
+    std::cout<<"MeshGenerator::GenerateMesh()  finish parse the system"<<std::endl;
+    //generate vertices for mesh
+    std::vector<std::vector<glm::vec3>> mesh_list = MeshGenerator::generate_vertice(points_list);
+    //generate mesh
+    MeshGenerator::create_mesh(mesh_list, points_list, close_index);
+    buildVAO();
 }
 
 
@@ -184,14 +185,12 @@ void MeshGenerator::create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
                     continue;
                 }
                 //Need to draw the face
-                // __
-                //|\ |
-                //|_\|
+
                 //Two triangles per face
                 //Draw the first triangle of the face
                 if( i < mesh_list.size() -1){
                     add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], mesh_list[i + 1][k]);
-                    add_triangle_face(mesh_list[i + 1][k], mesh_list[i + 1][k_next], mesh_list[i][k_next]);
+                    add_triangle_face(mesh_list[i][k_next], mesh_list[i+1][k_next], mesh_list[i+1][k]);
                 }
             }
             if(closedOff)
