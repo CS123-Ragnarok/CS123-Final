@@ -21,17 +21,75 @@ win32 {
     LIBS += -lopengl32 -lglu32
 }
 
-SOURCES += ui/mainwindow.cpp \
+SOURCES += \
+    camera/OrbitingCamera.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
+    terrain/openglshape.cpp \
+    terrain/terrain.cpp \
     ui/view.cpp \
-    ui/viewformat.cpp
+    ui/viewformat.cpp \
+    ui/mainwindow.cpp \
+    gl/shaders/Shader.cpp \
+    gl/GLDebug.cpp \
+    gl/datatype/VBOAttribMarker.cpp \
+    gl/datatype/VBO.cpp \
+    gl/datatype/IBO.cpp \
+    gl/datatype/VAO.cpp \
+    gl/datatype/FBO.cpp \
+    gl/textures/Texture.cpp \
+    gl/textures/Texture2D.cpp \
+    gl/textures/TextureParameters.cpp \
+    gl/textures/TextureParametersBuilder.cpp \
+    gl/textures/RenderBuffer.cpp \
+    gl/textures/DepthBuffer.cpp \
+    gl/shaders/CS123Shader.cpp \
+    lib/ResourceLoader.cpp \
+    scene/SceneviewScene.cpp \
+    shapes/Coneshape.cpp \
+    shapes/CubeShape.cpp \
+    shapes/CylinderShape.cpp \
+    shapes/Shape.cpp \
+    shapes/SphereShape.cpp \
+    src_blin/LSystem.cpp \
+    src_blin/MeshGenerator.cpp
 
-HEADERS += ui/mainwindow.h \
-    ui_mainwindow.h \
+
+HEADERS += \
+    camera/Camera.h \
+    camera/OrbitingCamera.h \
     glew-1.10.0/include/GL/glew.h \
+    terrain/openglshape.h \
+    terrain/terrain.h \
     ui/view.h \
-    ui/viewformat.h
+    ui/viewformat.h \
+    ui/mainwindow.h \
+    gl/shaders/Shader.h \
+    gl/GLDebug.h \
+    gl/shaders/ShaderAttribLocations.h \
+    gl/datatype/VBOAttribMarker.h \
+    gl/datatype/VBO.h \
+    gl/datatype/IBO.h \
+    gl/datatype/VAO.h \
+    gl/datatype/FBO.h \
+    gl/textures/Texture.h \
+    gl/textures/Texture2D.h \
+    gl/textures/TextureParameters.h \
+    gl/textures/TextureParametersBuilder.h \
+    gl/textures/RenderBuffer.h \
+    gl/textures/DepthBuffer.h \
+    gl/shaders/CS123Shader.h \
+    lib/CS123SceneData.h \
+    lib/ResourceLoader.h \
+    scene/SceneviewScene.h \
+    shapes/coneshape.h \
+    shapes/CubeShape.h \
+    shapes/CylinderShape.h \
+    shapes/Shape.h \
+    shapes/SphereShape.h \
+    src_blin/LSystem.h \
+    src_blin/MeshGenerator.h
+   
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include
