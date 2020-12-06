@@ -1,13 +1,14 @@
-#include "terrain.h"
+﻿#include "terrain.h"
 
 #include <math.h>
 #include "gl/shaders/ShaderAttribLocations.h"
 
 #include "ResourceLoader.h"
+#include "lib/CS123SceneData.h"
 
 Terrain::Terrain() : m_numRows(100), m_numCols(m_numRows)
 {
-    loadPhongShader();
+    //loadPhongShader();
 }
 
 void Terrain::loadPhongShader() {
@@ -87,6 +88,7 @@ glm::vec3 Terrain::getNormal(int row, int col) {
  * Initializes the terrain by storing positions and normals in a vertex buffer.
  */
 void Terrain::init() {
+    loadPhongShader();
     // TODO: Change from GL_LINE to GL_FILL in order to render full triangles instead of wireframe.
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -116,12 +118,41 @@ void Terrain::init() {
     m_shape->buildVAO();
 }
 
-
 /**
  * Draws the terrain.
  */
 void Terrain::draw()
 {
-    //m_phongShader.
+    CS123SceneMaterial testmaterial;
+    testmaterial.cAmbient = glm::vec4(139.0f / 255.0f, 69.0f / 255.0f, 19.0f / 255.0f, 1.0f);
+    testmaterial.cDiffuse = glm::vec4(0.5f);
+    testmaterial.cSpecular = glm::vec4(0.5f);
+    m_phongShader->applyMaterial(testmaterial);
+
+    m_phongShader->setUniform("m", glm::mat4());
+
     m_shape->draw();
+}
+
+
+void Terrain::render(Camera *camera) {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    m_phongShader->bind();
+    // set sceneuniforms
+    m_phongShader->setUniform("useLighting", true);
+    m_phongShader->setUniform("useArrowOffsets", false);
+    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
+    m_phongShader->setUniform("v", camera->getViewMatrix());
+
+    // set lights
+    CS123SceneLightData testlight;
+    testlight.type = LightType::LIGHT_DIRECTIONAL;
+    testlight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+    testlight.color = glm::vec4(1.0f);
+    m_phongShader->setLight(testlight);
+
+    // draw terrain
+    draw();
+
+    m_phongShader->unbind();
 }

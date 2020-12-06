@@ -47,6 +47,8 @@ void View::initializeGL() {
     m_time.start();
     m_timer.start(1000 / 60);
 
+    m_terrain.init();
+
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
@@ -57,6 +59,11 @@ void View::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // TODO: Implement the demo rendering here
+    float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
+    glViewport(0, 0, width() * ratio, height() * ratio);
+    m_defaultOrbitingCamera.get()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
+
+    m_terrain.render(getCamera());
 }
 
 void View::resizeGL(int w, int h) {
@@ -127,4 +134,8 @@ void View::tick() {
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
+}
+
+Camera *View::getCamera() {
+    return m_defaultOrbitingCamera.get();
 }

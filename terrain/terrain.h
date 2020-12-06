@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "gl/shaders/CS123Shader.h"
-
+#include "camera/Camera.h"
 #include "openglshape.h"
 
 class Terrain {
@@ -16,6 +16,7 @@ public:
     Terrain();
 
     void init();
+    void render(Camera *camera);
     void draw();
 
 private:
@@ -23,6 +24,8 @@ private:
     float randValue(int row, int col);
     glm::vec3 getPosition(int row, int col);
     glm::vec3 getNormal(int row, int col);
+
+
     std::unique_ptr<OpenGLShape> m_shape;
     const float m_numRows, m_numCols;
 

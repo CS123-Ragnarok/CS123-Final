@@ -6,6 +6,7 @@
 #include <QTime>
 #include <QTimer>
 #include "OrbitingCamera.h"
+#include "terrain/terrain.h"
 
 class View : public QGLWidget {
     Q_OBJECT
@@ -13,6 +14,7 @@ class View : public QGLWidget {
 public:
     View(QWidget *parent);
     ~View();
+    Camera *getCamera();
 
 private:
     QTime m_time;
@@ -20,6 +22,7 @@ private:
     bool m_captureMouse;
     bool m_isDragging;
     std::unique_ptr<OrbitingCamera> m_defaultOrbitingCamera;
+    Terrain m_terrain;
 
     void initializeGL();
     void paintGL();
