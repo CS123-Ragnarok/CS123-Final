@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include "GL/glew.h"
 #include "gl/datatype/VAO.h"
+
 #include<memory>
 #include <vector>
 
@@ -21,6 +22,7 @@ public:
     int points_per_lvl = 10;
 
      std::unique_ptr<LSystem> m_lsystem;
+
 
 private:
 

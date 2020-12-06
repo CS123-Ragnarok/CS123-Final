@@ -26,6 +26,7 @@ SOURCES += \
     glew-1.10.0/src/glew.c \
     ui/view.cpp \
     ui/viewformat.cpp \
+<<<<<<< HEAD
     ui/mainwindow.cpp \
     gl/shaders/Shader.cpp \
     gl/GLDebug.cpp \
@@ -51,11 +52,24 @@ SOURCES += \
     src_blin/LSystem.cpp \
     src_blin/MeshGenerator.cpp
     
+=======
+    src_blin/Cylinder.cpp \
+    src_blin/Shape.cpp \
+    src_blin/glwidget.cpp \
+    src_blin/LSystem.cpp \
+    src_blin/MeshGenerator.cpp \
+    cs123_lib/resourceloader.cpp \
+    datatype/IBO.cpp \
+    datatype/VAO.cpp \
+    datatype/VBO.cpp \
+    datatype/VBOAttribMarker.cpp
+>>>>>>> bojun
 
 HEADERS += \
     glew-1.10.0/include/GL/glew.h \
     ui/view.h \
     ui/viewformat.h \
+<<<<<<< HEAD
     ui/mainwindow.h \
     gl/shaders/Shader.h \
     gl/GLDebug.h \
@@ -83,6 +97,21 @@ HEADERS += \
     src_blin/LSystem.h \
     src_blin/MeshGenerator.h
    
+=======
+    src_blin/Cylinder.h \
+    src_blin/Shape.h \
+    src_blin/glwidget.h \
+    src_blin/LSystem.h \
+    src_blin/MeshGenerator.h \
+    cs123_lib/resourceloader.h \
+    shaders/ShaderAttribLocations.h \
+    datatype/IBO.h \
+    datatype/VAO.h \
+    datatype/VBO.h \
+    datatype/VBOAttribMarker.h \
+    datatype/CS123SceneData.h
+
+>>>>>>> bojun
 
 FORMS += ui/mainwindow.ui
 INCLUDEPATH += glm ui glew-1.10.0/include

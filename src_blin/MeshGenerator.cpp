@@ -13,6 +13,7 @@ MeshGenerator::MeshGenerator():
     m_lsystem = std::make_unique<LSystem>();
     m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
 
+
 }
 MeshGenerator::~MeshGenerator(){
 
@@ -52,6 +53,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
     m_lsystem->change_base(L_base);
     std::string system = m_lsystem->derivation(iterations);
     std::cout<<"generated system: "<<system<<std::endl;
+
     glm::vec3 direction = glm::vec3(0, 1, 0);
     glm::vec3 pos = start_pos;
     for(int i = 0; i < system.size(); i++)
@@ -116,6 +118,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
             break;
         }
 
+
     }
     std::cout<<"MeshGenerator::GenerateMesh()  finish parse the system"<<std::endl;
     //generate vertices for mesh
@@ -123,6 +126,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
     //generate mesh
     MeshGenerator::create_mesh(mesh_list, points_list, close_index);
     buildVAO();
+
 }
 
 
@@ -149,6 +153,7 @@ std::vector<std::vector<glm::vec3>> MeshGenerator::generate_vertice(std::vector<
                rotAxis = glm::vec3(0, 1, 0);
                float theta = 2 * M_PI / points_per_lvl * j;
                radVec = (float) cos(theta) * radVec + (glm::cross(rotAxis, radVec)) * (float)sin(theta) + rotAxis * (glm::dot(rotAxis, radVec))* (1.0f - (float)cos(theta));
+
                points_per_level.push_back(vertex + radVec);
          }
             mesh_list.push_back(points_per_level);
@@ -185,12 +190,12 @@ void MeshGenerator::create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
                     continue;
                 }
                 //Need to draw the face
-
                 //Two triangles per face
                 //Draw the first triangle of the face
                 if( i < mesh_list.size() -1){
                     add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], mesh_list[i + 1][k]);
                     add_triangle_face(mesh_list[i][k_next], mesh_list[i+1][k_next], mesh_list[i+1][k]);
+
                 }
             }
             if(closedOff)
