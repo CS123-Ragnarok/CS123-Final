@@ -33,11 +33,11 @@ SceneviewScene::SceneviewScene()
     m_sphere = std::make_unique<SphereShape>(20, 20);
 
     m_tree = std::make_unique<MeshGenerator>();
-   // m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
-   // m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
-    m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
+    //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+    //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
+    //m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
     //m_tree->m_lsystem->add_rules('B', "XXYYYYYYYYFRFzzFRRC");
-    m_tree->GenerateMesh("+TT+R", 5, glm::vec3(0.0f), 1.0f);
+    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.1f);
 
     //paintTrees();
 
@@ -63,6 +63,16 @@ CS123ScenePrimitive SceneviewScene::getBranch(){
     CS123ScenePrimitive res;
     res.type = PrimitiveType::PRIMITIVE_CYLINDER;
     res.material.cAmbient = glm::vec4(139.0f / 255.0f, 69.0f / 255.0f, 19.0f / 255.0f, 1.0f);
+    res.material.cDiffuse = glm::vec4(0.5f);
+    res.material.cSpecular = glm::vec4(0.5f);
+    res.material.shininess = 1.0f;
+    return res;
+}
+
+CS123ScenePrimitive SceneviewScene::getLeave(){
+    CS123ScenePrimitive res;
+    res.type = PrimitiveType::PRIMITIVE_CYLINDER;
+    res.material.cAmbient = glm::vec4(0.0f / 255.0f, 255.0f / 255.0f, 127.0f / 255.0f, 1.0f);
     res.material.cDiffuse = glm::vec4(0.5f);
     res.material.cSpecular = glm::vec4(0.5f);
     res.material.shininess = 1.0f;
@@ -194,7 +204,7 @@ void SceneviewScene::setMatrixUniforms(Shader *shader) {
     // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
     // y is always equal to 1. (Task 7)
 
-    glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
+    glm::vec3 eye = glm::vec3(6.0f, 6.0f, 6.0f);        // Camera position.
     //glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
     glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
     glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
@@ -276,11 +286,26 @@ void SceneviewScene::renderGeometry() {
 //        }
 //    }
 
-    CS123ScenePrimitive p = getBranch();
-    m_phongShader->applyMaterial(p.material);
+    CS123ScenePrimitive leave = getLeave();
+    CS123ScenePrimitive branch = getBranch();
+    m_phongShader->applyMaterial(branch.material);
     m_phongShader->setUniform("m", glm::mat4());
-    m_tree->draw();
-    //m_sphere->draw();
+    m_tree->drawLeave();
+
+
+    m_phongShader->applyMaterial(leave.material);
+    m_phongShader->setUniform("m", glm::mat4());
+    m_tree->drawBranch();
+
+//    CS123ScenePrimitive leave = getLeave();
+//    m_phongShader->applyMaterial(leave.material);
+//    m_phongShader->setUniform("m", glm::mat4());
+//    m_tree->drawLeave();
+
+//    CS123ScenePrimitive branch = getBranch();
+//    m_phongShader->applyMaterial(branch.material);
+//    m_phongShader->setUniform("m", glm::mat4());
+//    m_tree->draw();
 
 
 }

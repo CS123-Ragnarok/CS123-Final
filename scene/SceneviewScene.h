@@ -65,6 +65,8 @@ private:
     void paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle);
 
     CS123ScenePrimitive getBranch();
+    CS123ScenePrimitive getLeave();
+
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
     std::unique_ptr<CS123::GL::Shader> m_wireframeShader;

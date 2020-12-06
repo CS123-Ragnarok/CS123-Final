@@ -6,7 +6,7 @@
 #include <iostream>
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
-    m_time(), m_timer(), m_captureMouse(false)
+    m_time(), m_timer(), m_captureMouse(false), m_defaultOrbitingCamera(new OrbitingCamera())
 {
     // View needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
@@ -53,6 +53,8 @@ void View::initializeGL() {
     glFrontFace(GL_CCW);
 
     m_scene = std::make_unique<SceneviewScene>();
+    m_terrain = std::make_unique<Terrain>();
+    m_terrain->init();
 
 }
 
@@ -60,7 +62,11 @@ void View::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // TODO: Implement the demo rendering here
+    float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
+    glViewport(0, 0, width() * ratio, height() * ratio);
+    m_defaultOrbitingCamera.get()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
     m_scene->render();
+    m_terrain->render(getCamera());
 }
 
 void View::resizeGL(int w, int h) {
@@ -71,7 +77,11 @@ void View::resizeGL(int w, int h) {
 }
 
 void View::mousePressEvent(QMouseEvent *event) {
-
+    if (event->button() == Qt::RightButton) {
+        m_defaultOrbitingCamera.get()->mouseDown(event->x(), event->y());
+        m_isDragging = true;
+        update();
+    }
 }
 
 void View::mouseMoveEvent(QMouseEvent *event) {
@@ -90,16 +100,29 @@ void View::mouseMoveEvent(QMouseEvent *event) {
 
         // TODO: Handle mouse movements here
     }
+    if (m_isDragging) {
+        m_defaultOrbitingCamera.get()->mouseDragged(event->x(), event->y());
+        update();
+    }
 }
 
 void View::mouseReleaseEvent(QMouseEvent *event) {
-
+    if (m_isDragging && event->button() == Qt::RightButton) {
+        m_defaultOrbitingCamera.get()->mouseUp(event->x(), event->y());
+        m_isDragging = false;
+        update();
+    }
 }
 
 void View::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape) QApplication::quit();
 
     // TODO: Handle keyboard presses here
+}
+
+void View::wheelEvent(QWheelEvent *event) {
+    m_defaultOrbitingCamera.get()->mouseScrolled(event->delta());
+    update();
 }
 
 void View::keyReleaseEvent(QKeyEvent *event) {
@@ -114,4 +137,8 @@ void View::tick() {
 
     // Flag this view for repainting (Qt will call paintGL() soon after)
     update();
+}
+
+Camera *View::getCamera() {
+    return m_defaultOrbitingCamera.get();
 }

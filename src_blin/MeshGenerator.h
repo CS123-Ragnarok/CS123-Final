@@ -15,6 +15,8 @@ public:
     ~MeshGenerator();
 
     void draw();
+    void drawLeave();
+    void drawBranch();
     void buildVAO();
 
     void GenerateMesh(std::string system, int iterations, glm::vec3 startingPoint, float radius);
@@ -34,15 +36,21 @@ private:
     std::vector<GLfloat> m_vertexData;
     std::unique_ptr<CS123::GL::VAO> m_VAO;
 
+    std::vector<GLfloat> m_leaves;
+    std::vector<GLfloat> m_branches;
+
+    std::unique_ptr<CS123::GL::VAO> m_leave_VAO;
+    std::unique_ptr<CS123::GL::VAO> m_branch_VAO;
+
      std::vector<std::vector<glm::vec3>> generate_vertice(std::vector<std::pair<glm::vec3, float>> points_list);
 
      void create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
                       std::vector<std::pair<glm::vec3, float>> points_list,
                       std::vector<int> close_index);
 
-     void add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3);
+     void add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int choice);
 
-     void add_single_vertex(glm::vec3 point, glm::vec3 normal);
+     void add_single_vertex(glm::vec3 point, glm::vec3 normal, int choice);
 
 
 

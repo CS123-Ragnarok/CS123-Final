@@ -6,6 +6,8 @@
 #include <QTime>
 #include <QTimer>
 #include "scene/SceneviewScene.h"
+#include "terrain/terrain.h"
+#include "camera/OrbitingCamera.h"
 
 
 class View : public QGLWidget {
@@ -14,11 +16,13 @@ class View : public QGLWidget {
 public:
     View(QWidget *parent);
     ~View();
+    Camera *getCamera();
 
 private:
     QTime m_time;
     QTimer m_timer;
     bool m_captureMouse;
+    bool m_isDragging;
 
     void initializeGL();
     void paintGL();
@@ -27,11 +31,15 @@ private:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
+    void wheelEvent(QWheelEvent *event);
+
 
     void keyPressEvent(QKeyEvent *event);
     void keyReleaseEvent(QKeyEvent *event);
 
     std::unique_ptr<SceneviewScene> m_scene;
+    std::unique_ptr<Terrain> m_terrain;
+    std::unique_ptr<OrbitingCamera> m_defaultOrbitingCamera;
 
 private slots:
     void tick();

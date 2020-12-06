@@ -12,13 +12,13 @@ MeshGenerator::MeshGenerator():
 {
     m_lsystem = std::make_unique<LSystem>();
     m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+    m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
 
 
 }
 MeshGenerator::~MeshGenerator(){
 
 }
-
 
 void MeshGenerator::draw(){
 
@@ -29,15 +29,47 @@ void MeshGenerator::draw(){
     }
 }
 
+void MeshGenerator::drawLeave(){
+    if (m_leave_VAO) {
+        m_leave_VAO->bind();
+        m_leave_VAO->draw();
+        m_leave_VAO->unbind();
+    }
+}
+
+void MeshGenerator::drawBranch(){
+    if (m_branch_VAO) {
+        m_branch_VAO->bind();
+        m_branch_VAO->draw();
+        m_branch_VAO->unbind();
+    }
+}
+
 void MeshGenerator::buildVAO(){
     const int numFloatsPerVertex = 6;
-    const int numVertices = m_vertexData.size() / numFloatsPerVertex;
+//    const int numVertices = m_vertexData.size() / numFloatsPerVertex;
 
-    std::vector<VBOAttribMarker> markers;
-    markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
-    markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
-    VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);
-    m_VAO = std::make_unique<VAO>(vbo, numVertices);
+//    std::vector<VBOAttribMarker> markers;
+//    markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
+//    markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
+//    VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);
+//    m_VAO = std::make_unique<VAO>(vbo, numVertices);
+
+
+    const int num_leave_vertices = m_leaves.size() / numFloatsPerVertex;
+    std::vector<VBOAttribMarker> leave_markers;
+    leave_markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
+    leave_markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
+    VBO leave_vbo = VBO(m_leaves.data(), m_leaves.size(), leave_markers);
+    m_leave_VAO = std::make_unique<VAO>(leave_vbo, num_leave_vertices);
+
+    const int num_branch_vertices = m_leaves.size() / numFloatsPerVertex;
+
+    std::vector<VBOAttribMarker> branch_markers;
+    branch_markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
+    branch_markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
+    VBO branch_vbo = VBO(m_branches.data(), m_branches.size(), branch_markers);
+    m_branch_VAO = std::make_unique<VAO>(branch_vbo, num_branch_vertices);
 }
 
 
@@ -151,12 +183,13 @@ std::vector<std::vector<glm::vec3>> MeshGenerator::generate_vertice(std::vector<
                rotAxis = points_list[i + 1].first - rotAxis;
             else //Assume 0,1,0
                rotAxis = glm::vec3(0, 1, 0);
-               float theta = 2 * M_PI / points_per_lvl * j;
-               radVec = (float) cos(theta) * radVec + (glm::cross(rotAxis, radVec)) * (float)sin(theta) + rotAxis * (glm::dot(rotAxis, radVec))* (1.0f - (float)cos(theta));
 
-               points_per_level.push_back(vertex + radVec);
+            float theta = 2 * M_PI / points_per_lvl * j;
+            radVec = (float) cos(theta) * radVec + (glm::cross(rotAxis, radVec)) * (float)sin(theta) + rotAxis * (glm::dot(rotAxis, radVec))* (1.0f - (float)cos(theta));
+
+            points_per_level.push_back(vertex + radVec);
          }
-            mesh_list.push_back(points_per_level);
+         mesh_list.push_back(points_per_level);
     }
     return mesh_list;
 }
@@ -168,45 +201,40 @@ void MeshGenerator::create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
     for(int i = 0; i < mesh_list.size(); i++)
     {
 
-            int currentSize = mesh_list[i].size();
-            int nextRowSize = mesh_list[(i + 1) % mesh_list.size()].size();
-            bool closedOff = false;
-            for (int k = 0; k < currentSize; k++)
+        int currentSize = mesh_list[i].size();
+        int nextRowSize = mesh_list[(i + 1) % mesh_list.size()].size();
+        bool closedOff = false;
+        for (int k = 0; k < currentSize; k++)
+        {
+            //Draw to the next layer of points, unless this is the first or last layer.
+            //In those situations the shape needs to close, so connect those to the center points.
+            int k_next = (k + 1) % currentSize;
+            if (i == 0 || i == mesh_list.size() - 1)
             {
-                //Draw to the next layer of points, unless this is the first or last layer.
-                //In those situations the shape needs to close, so connect those to the center points.
-                int k_next = (k + 1) % currentSize;
-                if (i == 0 || i == mesh_list.size() - 1)
-                {
-                    add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first);
-                }
-
-                //Don't connect points to the next layer of the index is a close off point
-                if (closedOff || (close_index.size() > 0 && i == close_index.front()))
-                {
-
-                    add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first);
-                    closedOff = true;
-                    continue;
-                }
-                //Need to draw the face
-                //Two triangles per face
-                //Draw the first triangle of the face
-                if( i < mesh_list.size() -1){
-                    add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], mesh_list[i + 1][k]);
-                    add_triangle_face(mesh_list[i][k_next], mesh_list[i+1][k_next], mesh_list[i+1][k]);
-
-                }
+                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first, 0);
             }
-            if(closedOff)
-                close_index.erase(close_index.begin());
+
+            //Don't connect points to the next layer of the index is a close off point
+            if (closedOff || (close_index.size() > 0 && i == close_index.front()))
+            {
+
+                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first, 0);
+                closedOff = true;
+                continue;
+            }
+            //Need to draw the face
+            //Two triangles per face
+            //Draw the first triangle of the face
+            if( i < mesh_list.size() -1){
+                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], mesh_list[i + 1][k], 1);
+                add_triangle_face(mesh_list[i][k_next], mesh_list[i+1][k_next], mesh_list[i+1][k], 1);
+
+            }
         }
+        if(closedOff)
+            close_index.erase(close_index.begin());
+    }
 }
-
-
-
-
-
 
 glm::mat3 MeshGenerator::rotate_up(float rad)
 {
@@ -233,21 +261,36 @@ glm::mat3 MeshGenerator::rotate_head(float rad)
      return glm::transpose(token);
 }
 
-void MeshGenerator::add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3)
+void MeshGenerator::add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int choice)
 {
     glm::vec3 v1 = p1-p3;
     glm::vec3 v2 = p2-p3;
     glm::vec3 normal = glm::normalize(glm::cross(v1,v2));
-    add_single_vertex(p1, normal);
-    add_single_vertex(p2, normal);
-    add_single_vertex(p3, normal);
+    add_single_vertex(p1, normal, choice);
+    add_single_vertex(p2, normal, choice);
+    add_single_vertex(p3, normal, choice);
 
 }
-void MeshGenerator::add_single_vertex(glm::vec3 point, glm::vec3 normal){
-    m_vertexData.push_back(point.x);
-    m_vertexData.push_back(point.y);
-    m_vertexData.push_back(point.z);
-    m_vertexData.push_back(normal[0]);
-    m_vertexData.push_back(normal[1]);
-    m_vertexData.push_back(normal[2]);
+void MeshGenerator::add_single_vertex(glm::vec3 point, glm::vec3 normal, int choice){
+//    m_vertexData.push_back(point.x);
+//    m_vertexData.push_back(point.y);
+//    m_vertexData.push_back(point.z);
+//    m_vertexData.push_back(normal[0]);
+//    m_vertexData.push_back(normal[1]);
+//    m_vertexData.push_back(normal[2]);
+    if(choice == 0) {
+        m_branches.push_back(point.x);
+        m_branches.push_back(point.y);
+        m_branches.push_back(point.z);
+        m_branches.push_back(normal[0]);
+        m_branches.push_back(normal[1]);
+        m_branches.push_back(normal[2]);
+    } else {
+        m_leaves.push_back(point.x);
+        m_leaves.push_back(point.y);
+        m_leaves.push_back(point.z);
+        m_leaves.push_back(normal[0]);
+        m_leaves.push_back(normal[1]);
+        m_leaves.push_back(normal[2]);
+    }
 }

@@ -22,8 +22,11 @@ win32 {
 }
 
 SOURCES += \
+    camera/OrbitingCamera.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
+    terrain/openglshape.cpp \
+    terrain/terrain.cpp \
     ui/view.cpp \
     ui/viewformat.cpp \
     ui/mainwindow.cpp \
@@ -53,7 +56,11 @@ SOURCES += \
 
 
 HEADERS += \
+    camera/Camera.h \
+    camera/OrbitingCamera.h \
     glew-1.10.0/include/GL/glew.h \
+    terrain/openglshape.h \
+    terrain/terrain.h \
     ui/view.h \
     ui/viewformat.h \
     ui/mainwindow.h \
