@@ -88,8 +88,8 @@ glm::vec3 Terrain::getNormal(int row, int col) {
  * Initializes the terrain by storing positions and normals in a vertex buffer.
  */
 void Terrain::init() {
-    loadPhongShader();
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    loadPhongShader();
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
     // Initializes a grid of vertices using triangle strips.
@@ -251,6 +251,7 @@ void Terrain::draw()
     topmaterial.cDiffuse = glm::vec4(0.5f);
     topmaterial.cSpecular = glm::vec4(0.3f);
     topmaterial.shininess = 1.0f;
+    //shader->applyMaterial(topmaterial);
     m_phongShader->applyMaterial(topmaterial);
 
     m_phongShader->setUniform("m", glm::translate(glm::mat4x4(1.0), glm::vec3(0.f, -1.5f, 0.f)));
@@ -271,6 +272,17 @@ void Terrain::draw()
     m_bot->draw();
 }
 
+void Terrain::drawTop(){
+    m_top->draw();
+}
+
+void Terrain::drawElse(){
+    m_right->draw();
+    m_left->draw();
+    m_front->draw();
+    m_back->draw();
+    m_bot->draw();
+}
 
 void Terrain::render(Camera *camera) {
     glClearColor(0, 0, 0, 0);

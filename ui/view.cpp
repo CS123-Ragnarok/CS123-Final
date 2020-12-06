@@ -53,8 +53,8 @@ void View::initializeGL() {
     glFrontFace(GL_CCW);
 
     m_scene = std::make_unique<SceneviewScene>();
-    m_terrain = std::make_unique<Terrain>();
-    m_terrain->init();
+    //m_terrain = std::make_unique<Terrain>();
+    //m_terrain->init();
 
 }
 
@@ -65,8 +65,8 @@ void View::paintGL() {
     float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
     glViewport(0, 0, width() * ratio, height() * ratio);
     m_defaultOrbitingCamera.get()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
-    m_scene->render();
-    m_terrain->render(getCamera());
+    m_scene->render(getCamera());
+    //m_terrain->render(getCamera());
 }
 
 void View::resizeGL(int w, int h) {

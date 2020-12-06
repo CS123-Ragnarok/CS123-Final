@@ -37,16 +37,17 @@ SceneviewScene::SceneviewScene()
     //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
     //m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
     //m_tree->m_lsystem->add_rules('B', "XXYYYYYYYYFRFzzFRRC");
-    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.1f);
-
+    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.01f);
+    m_terrain = std::make_unique<Terrain>();
+    m_terrain->init();
     //paintTrees();
 
     m_testLight.type = LightType::LIGHT_DIRECTIONAL;
     m_testLight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
     m_testLight.color = glm::vec4(1.0f);
 
-    m_timer.start(1000.0f / m_fps);
-    m_increment = 0;
+//    m_timer.start(1000.0f / m_fps);
+//    m_increment = 0;
 }
 
 SceneviewScene::~SceneviewScene()
@@ -145,12 +146,12 @@ void SceneviewScene::paintTrees(){
     paintTree(glm::vec4(0.0f), glm::vec4(1.0f / sqrt(6), 2.0f / sqrt(6), 1.0f / sqrt(6),0.0f), "f[-f][+f]f", 1.0f, glm::radians(90.0f));
 }
 
-void SceneviewScene::render() {
+void SceneviewScene::render(Camera * camera) {
     glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_phongShader->bind();
-    setSceneUniforms();
+    setSceneUniforms(camera);
     setLights();
     renderGeometry();
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -158,63 +159,63 @@ void SceneviewScene::render() {
 
 }
 
-void SceneviewScene::setSceneUniforms() {
+void SceneviewScene::setSceneUniforms(Camera * camera) {
 //    Camera *camera = context->getCamera();
     m_phongShader->setUniform("useLighting", true);
 //    m_phongShader->setUniform("useArrowOffsets", false);
-//    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
-//    m_phongShader->setUniform("v", camera->getViewMatrix());
+    m_phongShader->setUniform("p" , camera->getProjectionMatrix());
+    m_phongShader->setUniform("v", camera->getViewMatrix());
 
 
     //float time = m_increment++ / (float) m_fps;      // Time in seconds.
 
-    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
-    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
-    float aspectRatio = 1.03257f;
-    float nearClipPlane = 0.1f;                      // Near clipping plane.
-    float farClipPlane = 100.f;                      // Far clipping plane.
+//    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
+//    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
+//    float aspectRatio = 1.03257f;
+//    float nearClipPlane = 0.1f;                      // Near clipping plane.
+//    float farClipPlane = 100.f;                      // Far clipping plane.
 
-    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
-    // y is always equal to 1. (Task 7)
+//    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
+//    // y is always equal to 1. (Task 7)
 
-    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
-    glm::vec3 eye = glm::vec3(20.0f, 10.0f, 20.0f);        // Camera position.
-    glm::vec3 center = glm::vec3(0.f, 5.f, 0.f);     // Where camera is looking.
-    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
+//    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
+//    glm::vec3 eye = glm::vec3(20.0f, 10.0f, 20.0f);        // Camera position.
+//    glm::vec3 center = glm::vec3(0.f, 5.f, 0.f);     // Where camera is looking.
+//    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
 
-    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
-    glm::mat4 view = glm::lookAt(eye, center, up);
-    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
+//    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
+//    glm::mat4 view = glm::lookAt(eye, center, up);
+//    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
 
-    m_phongShader->setUniform("p", perspective);
-    m_phongShader->setUniform("v", view);
+//    m_phongShader->setUniform("p", perspective);
+//    m_phongShader->setUniform("v", view);
 }
 
 void SceneviewScene::setMatrixUniforms(Shader *shader) {
 //    shader->setUniform("p", context->getCamera()->getProjectionMatrix());
 //    shader->setUniform("v", context->getCamera()->getViewMatrix());
-    float time = m_increment++ / (float) m_fps;      // Time in seconds.
+//    float time = m_increment++ / (float) m_fps;      // Time in seconds.
 
-    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
-    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
-    float aspectRatio = 1.03257f;
-    float nearClipPlane = 0.1f;                      // Near clipping plane.
-    float farClipPlane = 100.f;                      // Far clipping plane.
+//    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
+//    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
+//    float aspectRatio = 1.03257f;
+//    float nearClipPlane = 0.1f;                      // Near clipping plane.
+//    float farClipPlane = 100.f;                      // Far clipping plane.
 
-    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
-    // y is always equal to 1. (Task 7)
+//    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
+//    // y is always equal to 1. (Task 7)
 
-    glm::vec3 eye = glm::vec3(6.0f, 6.0f, 6.0f);        // Camera position.
-    //glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
-    glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
-    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
+//    glm::vec3 eye = glm::vec3(6.0f, 6.0f, 6.0f);        // Camera position.
+//    //glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
+//    glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
+//    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
 
-    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
-    glm::mat4 view = glm::lookAt(eye, center, up);
-    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
+//    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
+//    glm::mat4 view = glm::lookAt(eye, center, up);
+//    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
 
-    shader->setUniform("p", perspective);
-    shader->setUniform("v", view);
+//    shader->setUniform("p", perspective);
+//    shader->setUniform("v", view);
 
 }
 
@@ -286,16 +287,52 @@ void SceneviewScene::renderGeometry() {
 //        }
 //    }
 
-    CS123ScenePrimitive leave = getLeave();
+
+    float scale = 1.0f / 10.0f;
     CS123ScenePrimitive branch = getBranch();
     m_phongShader->applyMaterial(branch.material);
-    m_phongShader->setUniform("m", glm::mat4());
-    m_tree->drawLeave();
 
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 5; j++){
+            int row = i * 20;
+            int col = j * 20;
+            glm::vec3 pos = m_terrain->getPosition(row, col);
+            glm::vec3 nor = m_terrain->getNormal(row, col);
+            pos -= glm::vec3(0.0f, -1.5f, 0.0f);
+            glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
+            glm::vec3 d = nor.xyz();
+            glm::vec3 a = glm::cross(y, d);
 
-    m_phongShader->applyMaterial(leave.material);
-    m_phongShader->setUniform("m", glm::mat4());
-    m_tree->drawBranch();
+            float omega = glm::acos(glm::dot(y, d));
+            glm::mat4 m = glm::translate(pos) * glm::rotate(omega, a) * glm::scale(glm::vec3(scale));
+            m_phongShader->setUniform("m", m);
+            m_tree->drawLeave();
+            m_tree->drawBranch();
+        }
+    }
+    //CS123ScenePrimitive leave = getLeave();
+
+    CS123SceneMaterial topmaterial;
+    topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
+    topmaterial.cDiffuse = glm::vec4(0.5f);
+    topmaterial.cSpecular = glm::vec4(0.3f);
+    topmaterial.shininess = 1.0f;
+    //shader->applyMaterial(topmaterial);
+    m_phongShader->applyMaterial(topmaterial);
+
+    m_phongShader->setUniform("m", glm::translate(glm::mat4x4(1.0), glm::vec3(0.f, -1.5f, 0.f)));
+
+    m_terrain->drawTop();
+
+    CS123SceneMaterial sidematerial;
+    sidematerial.cAmbient = glm::vec4(64.0f / 255.0f, 41.0f / 255.0f, 5.0f / 255.0f, 1.0f);
+    sidematerial.cDiffuse = glm::vec4(0.2f);
+    sidematerial.cSpecular = glm::vec4(0.f);
+    sidematerial.shininess = 1.0f;
+    m_phongShader->applyMaterial(sidematerial);
+
+    m_terrain->drawElse();
+
 
 //    CS123ScenePrimitive leave = getLeave();
 //    m_phongShader->applyMaterial(leave.material);

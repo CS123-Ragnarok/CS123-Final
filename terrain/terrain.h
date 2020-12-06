@@ -17,15 +17,16 @@ public:
 
     void init();
     void render(Camera *camera);
-
-private:
-    void genSides();
     void draw();
-    void loadPhongShader();
-    float randValue(int row, int col);
+    void drawTop();
+    void drawElse();
     glm::vec3 getPosition(int row, int col);
     glm::vec3 getNormal(int row, int col);
 
+private:
+    void genSides();
+    void loadPhongShader();
+    float randValue(int row, int col);
 
     std::unique_ptr<OpenGLShape> m_top;
     std::unique_ptr<OpenGLShape> m_front;

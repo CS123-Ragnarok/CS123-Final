@@ -8,6 +8,8 @@
 #include "shapes/SphereShape.h"
 #include "lib/CS123SceneData.h"
 #include "src_blin/MeshGenerator.h"
+#include "camera/Camera.h"
+#include "terrain/terrain.h"
 
 #include <string>
 #include <QTimer>
@@ -42,7 +44,7 @@ public:
     SceneviewScene();
     virtual ~SceneviewScene();
 
-    virtual void render();
+    virtual void render(Camera * camera);
 
 
     // Use this method to set an internal selection, based on the (x, y) position of the mouse
@@ -56,7 +58,7 @@ private:
     void loadPhongShader();
 
 
-    void setSceneUniforms();
+    void setSceneUniforms(Camera * camera);
     void setMatrixUniforms(CS123::GL::Shader *shader);
     void setLights();
     void renderGeometry();
@@ -74,15 +76,16 @@ private:
     std::unique_ptr<CS123::GL::Shader> m_normalsArrowShader;
 
     std::unique_ptr<MeshGenerator> m_tree;
+    std::unique_ptr<Terrain> m_terrain;
 
     std::unique_ptr<CubeShape> m_cube;
     std::unique_ptr<ConeShape> m_cone;
     std::unique_ptr<CylinderShape> m_cylinder;
     std::unique_ptr<SphereShape> m_sphere;
 
-     const float m_fps = 60.0f;
-     QTimer m_timer;
-     int m_increment;
+//     const float m_fps = 60.0f;
+//     QTimer m_timer;
+//     int m_increment;
 
      std::vector<CS123ScenePrimitive> m_primitives;
      std::vector<glm::mat4> m_trans;
