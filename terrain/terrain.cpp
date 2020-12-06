@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include "gl/shaders/ShaderAttribLocations.h"
+#include <iostream>
 
 #include "ResourceLoader.h"
 #include "lib/CS123SceneData.h"
@@ -33,8 +34,7 @@ glm::vec3 Terrain::getPosition(int row, int col) {
     position.x = 10 * row/m_numRows - 5;
     position.z = 10 * col/m_numCols - 5;
 
-    // TODO: Adjust position.y using value noise.
-    for (int i = 1; i <= 5; i++){
+    for (int i = 1; i <= 3; i++){
 
         float A = randValue(floor(row / 20 * i), floor(col / 20 * i));
         float B = randValue(floor(row / 20 * i), floor(col / 20 * i)+1);
@@ -46,7 +46,7 @@ glm::vec3 Terrain::getPosition(int row, int col) {
         float AB = glm::mix(A, B, (float) x*x*(3-2*x));
         float CD = glm::mix(C, D, (float) x*x*(3-2*x));
         float val = glm::mix(AB, CD, (float) y*y*(3-2*y));
-        position.y += val / glm::exp2((float) (i-1));
+        position.y += val / pow(4.f, (float) (i-1));
 
     }
     return position;
@@ -89,11 +89,11 @@ glm::vec3 Terrain::getNormal(int row, int col) {
  */
 void Terrain::init() {
     loadPhongShader();
-    // TODO: Change from GL_LINE to GL_FILL in order to render full triangles instead of wireframe.
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 
     // Initializes a grid of vertices using triangle strips.
+    // top
     int numVertices = (m_numRows - 1) * (2 * m_numCols + 2);
     std::vector<glm::vec3> data(2 * numVertices);
     int index = 0;
@@ -109,13 +109,136 @@ void Terrain::init() {
         data[index++] = getPosition(row + 1, m_numCols - 1);
         data[index++] = getNormal  (row + 1, m_numCols - 1);
     }
-
     // Initialize OpenGLShape.
-    m_shape = std::make_unique<OpenGLShape>();
-    m_shape->setVertexData(&data[0][0], data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, numVertices);
-    m_shape->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
-    m_shape->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
-    m_shape->buildVAO();
+    m_top = std::make_unique<OpenGLShape>();
+    m_top->setVertexData(&data[0][0], data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, numVertices);
+    m_top->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_top->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    //m_shape->setAttribute(ShaderAttrib::TEXCOORD2, 2, 2*sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_top->buildVAO();
+
+    // initialize side boxes
+    genSides();
+}
+
+void Terrain::genSides() {
+    glm::vec3 temp, first, last;
+    int index;
+    float bot_y = -1.5f;
+    // right
+    index = 0;
+    std::vector<glm::vec3> right_data(4 * m_numCols + 4);
+    for (int col = m_numCols - 1; col >= 0; col--) {
+        temp = getPosition(m_numRows-2, col);
+        right_data[index++] = temp;
+        right_data[index++] = glm::vec3(1.f, 0.f, 0.f);
+        right_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+        right_data[index++] = glm::vec3(1.f, 0.f, 0.f);
+    }
+    last = getPosition(m_numRows-2, 0);
+    right_data[index++] = glm::vec3(last.x, bot_y, last.z);
+    right_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+    first = getPosition(m_numRows-2, m_numCols - 1);
+    right_data[index++] = glm::vec3(first.x, bot_y, first.z);
+    right_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+
+    m_right = std::make_unique<OpenGLShape>();
+    m_right->setVertexData(&right_data[0][0], right_data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, 2 * m_numCols + 2);
+    m_right->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_right->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_right->buildVAO();
+
+    // left
+    index = 0;
+    std::vector<glm::vec3> left_data(4 * m_numCols + 4);
+    for (int col = 0; col <= m_numCols - 1; col++) {
+        temp = getPosition(0, col);
+        left_data[index++] = temp;
+        left_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+        left_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+        left_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+    }
+    last = getPosition(0, m_numCols - 1);
+    left_data[index++] = glm::vec3(last.x, bot_y, last.z);
+    left_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+    first = getPosition(0, 0);
+    left_data[index++] = glm::vec3(first.x, bot_y, first.z);
+    left_data[index++] = glm::vec3(-1.f, 0.f, 0.f);
+
+    m_left = std::make_unique<OpenGLShape>();
+    m_left->setVertexData(&left_data[0][0], left_data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, 2 * m_numCols + 2);
+    m_left->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_left->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_left->buildVAO();
+
+    // front
+    index = 0;
+    std::vector<glm::vec3> front_data(4 * m_numRows);
+    for (int row = 0; row < m_numRows - 1; row++) {
+        temp = getPosition(row, m_numCols - 1);
+        front_data[index++] = temp;
+        front_data[index++] = glm::vec3(0.f, 0.f, 1.f);
+        front_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+        front_data[index++] = glm::vec3(0.f, 0.f, 1.f);
+    }
+    last = getPosition(m_numRows - 2, m_numCols - 1);
+    front_data[index++] = glm::vec3(last.x, bot_y, last.z);
+    front_data[index++] = glm::vec3(0.f, 0.f, 1.f);
+    first = getPosition(0, m_numCols - 1);
+    front_data[index++] = glm::vec3(first.x, bot_y, first.z);
+    front_data[index++] = glm::vec3(0.f, 0.f, 1.f);
+
+    m_front = std::make_unique<OpenGLShape>();
+    m_front->setVertexData(&front_data[0][0], front_data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, 2 * m_numRows);
+    m_front->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_front->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_front->buildVAO();
+
+    // back
+    index = 0;
+    std::vector<glm::vec3> back_data(4 * m_numRows);
+    for (int row = m_numRows - 2; row >= 0 ; row--) {
+        temp = getPosition(row, 0);
+        back_data[index++] = temp;
+        back_data[index++] = glm::vec3(0.f, 0.f, -1.f);
+        back_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+        back_data[index++] = glm::vec3(0.f, 0.f, -1.f);
+    }
+    last = getPosition(0, 0);
+    back_data[index++] = glm::vec3(last.x, bot_y, last.z);
+    back_data[index++] = glm::vec3(0.f, 0.f, -1.f);
+    first = getPosition(m_numRows - 2, 0);
+    back_data[index++] = glm::vec3(first.x, bot_y, first.z);
+    back_data[index++] = glm::vec3(0.f, 0.f, -1.f);
+
+    m_back = std::make_unique<OpenGLShape>();
+    m_back->setVertexData(&back_data[0][0], back_data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, 2 * m_numRows);
+    m_back->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_back->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_back->buildVAO();
+
+    // bot
+    std::vector<glm::vec3> bot_data(8);
+    index = 0;
+    temp = getPosition(m_numRows - 2, 0);
+    bot_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+    bot_data[index++] = glm::vec3(0.f, -1.f, 0.f);
+    temp = getPosition(m_numRows - 2, m_numCols - 1);
+    bot_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+    bot_data[index++] = glm::vec3(0.f, -1.f, 0.f);
+    temp = getPosition(0, 0);
+    bot_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+    bot_data[index++] = glm::vec3(0.f, -1.f, 0.f);
+    temp = getPosition(0, m_numCols - 1);
+    bot_data[index++] = glm::vec3(temp.x, bot_y, temp.z);
+    bot_data[index++] = glm::vec3(0.f, -1.f, 0.f);
+
+    m_bot = std::make_unique<OpenGLShape>();
+    m_bot->setVertexData(&bot_data[0][0], bot_data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, 4);
+    m_bot->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_bot->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    //m_shape->setAttribute(ShaderAttrib::TEXCOORD2, 2, 2*sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_bot->buildVAO();
 }
 
 /**
@@ -123,19 +246,34 @@ void Terrain::init() {
  */
 void Terrain::draw()
 {
-    CS123SceneMaterial testmaterial;
-    testmaterial.cAmbient = glm::vec4(139.0f / 255.0f, 69.0f / 255.0f, 19.0f / 255.0f, 1.0f);
-    testmaterial.cDiffuse = glm::vec4(0.5f);
-    testmaterial.cSpecular = glm::vec4(0.5f);
-    m_phongShader->applyMaterial(testmaterial);
+    CS123SceneMaterial topmaterial;
+    topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
+    topmaterial.cDiffuse = glm::vec4(0.5f);
+    topmaterial.cSpecular = glm::vec4(0.3f);
+    topmaterial.shininess = 1.0f;
+    m_phongShader->applyMaterial(topmaterial);
 
-    m_phongShader->setUniform("m", glm::mat4());
+    m_phongShader->setUniform("m", glm::translate(glm::mat4x4(1.0), glm::vec3(0.f, -1.5f, 0.f)));
 
-    m_shape->draw();
+    m_top->draw();
+
+    CS123SceneMaterial sidematerial;
+    sidematerial.cAmbient = glm::vec4(64.0f / 255.0f, 41.0f / 255.0f, 5.0f / 255.0f, 1.0f);
+    sidematerial.cDiffuse = glm::vec4(0.2f);
+    sidematerial.cSpecular = glm::vec4(0.f);
+    sidematerial.shininess = 1.0f;
+    m_phongShader->applyMaterial(sidematerial);
+
+    m_right->draw();
+    m_left->draw();
+    m_front->draw();
+    m_back->draw();
+    m_bot->draw();
 }
 
 
 void Terrain::render(Camera *camera) {
+    glClearColor(0, 0, 0, 0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_phongShader->bind();
     // set sceneuniforms
@@ -146,8 +284,9 @@ void Terrain::render(Camera *camera) {
 
     // set lights
     CS123SceneLightData testlight;
+    testlight.id = 0;
     testlight.type = LightType::LIGHT_DIRECTIONAL;
-    testlight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+    testlight.dir = glm::normalize(glm::vec4(1.0f, -1.0f, -1.0f, 0.0f));
     testlight.color = glm::vec4(1.0f);
     m_phongShader->setLight(testlight);
 

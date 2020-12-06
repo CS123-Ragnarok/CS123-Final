@@ -66,6 +66,7 @@ void main()
             // Add diffuse component
             float diffuseIntensity = max(0.0, dot(vertexToLight, normal_cameraSpace));
             color += max(vec3(0), lightColors[i] * diffuse_color * diffuseIntensity);
+            //color += max(vec3(0), diffuse_color * diffuseIntensity);
 
             // Add specular component
             vec4 lightReflection = normalize(-reflect(vertexToLight, normal_cameraSpace));
