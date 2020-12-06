@@ -88,9 +88,6 @@ glm::vec3 Terrain::getNormal(int row, int col) {
  * Initializes the terrain by storing positions and normals in a vertex buffer.
  */
 void Terrain::init() {
-//    loadPhongShader();
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
 
     // Initializes a grid of vertices using triangle strips.
     // top
