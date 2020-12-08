@@ -37,13 +37,13 @@ SceneviewScene::SceneviewScene()
     //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
     //m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
     //m_tree->m_lsystem->add_rules('B', "XXYYYYYYYYFRFzzFRRC");
-    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.01f);
+    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.05f);
     m_terrain = std::make_unique<Terrain>();
     m_terrain->init();
     //paintTrees();
-
+    m_testLight.id = 0;
     m_testLight.type = LightType::LIGHT_DIRECTIONAL;
-    m_testLight.dir = glm::vec4(0.0f, -1.0f, 0.0f, 0.0f);
+    m_testLight.dir = glm::normalize(glm::vec4(1.0f, -1.0f, 1.0f, 0.0f));
     m_testLight.color = glm::vec4(1.0f);
 
 //    m_timer.start(1000.0f / m_fps);
@@ -63,9 +63,9 @@ void SceneviewScene::loadPhongShader() {
 CS123ScenePrimitive SceneviewScene::getBranch(){
     CS123ScenePrimitive res;
     res.type = PrimitiveType::PRIMITIVE_CYLINDER;
-    res.material.cAmbient = glm::vec4(139.0f / 255.0f, 69.0f / 255.0f, 19.0f / 255.0f, 1.0f);
+    res.material.cAmbient = glm::vec4(93.0f / 255.0f, 67.0f / 255.0f, 44.0f / 255.0f, 1.0f);
     res.material.cDiffuse = glm::vec4(0.5f);
-    res.material.cSpecular = glm::vec4(0.5f);
+    res.material.cSpecular = glm::vec4(0.1f);
     res.material.shininess = 1.0f;
     return res;
 }
@@ -83,8 +83,6 @@ CS123ScenePrimitive SceneviewScene::getLeave(){
 void SceneviewScene::paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle){
     /*
     place :
-
-
     */
     int size = lTree.size();
     glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -136,7 +134,6 @@ void SceneviewScene::paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree
             translations.pop_back();
             break;
         }
-
     }
 }
 
@@ -147,7 +144,7 @@ void SceneviewScene::paintTrees(){
 }
 
 void SceneviewScene::render(Camera * camera) {
-    glClearColor(0, 0, 0, 0);
+    glClearColor(53.f/255.f, 81.f/255.f, 92.f/255.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_phongShader->bind();
@@ -160,64 +157,11 @@ void SceneviewScene::render(Camera * camera) {
 }
 
 void SceneviewScene::setSceneUniforms(Camera * camera) {
-//    Camera *camera = context->getCamera();
     m_phongShader->setUniform("useLighting", true);
-//    m_phongShader->setUniform("useArrowOffsets", false);
     m_phongShader->setUniform("p" , camera->getProjectionMatrix());
     m_phongShader->setUniform("v", camera->getViewMatrix());
-
-
-    //float time = m_increment++ / (float) m_fps;      // Time in seconds.
-
-//    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
-//    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
-//    float aspectRatio = 1.03257f;
-//    float nearClipPlane = 0.1f;                      // Near clipping plane.
-//    float farClipPlane = 100.f;                      // Far clipping plane.
-
-//    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
-//    // y is always equal to 1. (Task 7)
-
-//    //glm::vec3 eye = glm::vec3(0.f, 1, 6.f);        // Camera position.
-//    glm::vec3 eye = glm::vec3(20.0f, 10.0f, 20.0f);        // Camera position.
-//    glm::vec3 center = glm::vec3(0.f, 5.f, 0.f);     // Where camera is looking.
-//    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
-
-//    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
-//    glm::mat4 view = glm::lookAt(eye, center, up);
-//    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
-
-//    m_phongShader->setUniform("p", perspective);
-//    m_phongShader->setUniform("v", view);
 }
 
-void SceneviewScene::setMatrixUniforms(Shader *shader) {
-//    shader->setUniform("p", context->getCamera()->getProjectionMatrix());
-//    shader->setUniform("v", context->getCamera()->getViewMatrix());
-//    float time = m_increment++ / (float) m_fps;      // Time in seconds.
-
-//    float fieldOfViewY = 0.8f;                       // Vertical field of view angle, in radians.
-//    //float aspectRatio = (float)width() / height();   // Aspect ratio of the window.
-//    float aspectRatio = 1.03257f;
-//    float nearClipPlane = 0.1f;                      // Near clipping plane.
-//    float farClipPlane = 100.f;                      // Far clipping plane.
-
-//    // TODO: Adjust the eye coordinates so the camera goes in a circle of radius 6 where
-//    // y is always equal to 1. (Task 7)
-
-//    glm::vec3 eye = glm::vec3(6.0f, 6.0f, 6.0f);        // Camera position.
-//    //glm::vec3 eye = glm::vec3(sqrt(time), 2.0f, 2.0f);        // Camera position.
-//    glm::vec3 center = glm::vec3(0.f, 1.f, 0.f);     // Where camera is looking.
-//    glm::vec3 up = glm::vec3(0.f, 1.f, 0.f);         // Up direction.
-
-//    // TODO: Generate view matrix and pass it to vertex shader. (Task 4)
-//    glm::mat4 view = glm::lookAt(eye, center, up);
-//    glm::mat4 perspective = glm::perspective(fieldOfViewY, aspectRatio, nearClipPlane, farClipPlane);
-
-//    shader->setUniform("p", perspective);
-//    shader->setUniform("v", view);
-
-}
 
 void SceneviewScene::setLights()
 {
@@ -235,85 +179,35 @@ void SceneviewScene::setLights()
 
 void SceneviewScene::renderGeometry() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    // TODO: [SCENEVIEW] Fill this in...
-    // You shouldn't need to write *any* OpenGL in this class!
-    //
-    //
-    // This is where you should render the geometry of the scene. Use what you
-    // know about OpenGL and leverage your Shapes classes to get the job done.
-    //
-
-//    for(auto tup : m_primitives){
-//        CS123ScenePrimitive p = std::get<0>(tup);
-//        glm::mat4x4 trans = std::get<1>(tup);
-//        p.material.cDiffuse = m_global.kd * p.material.cDiffuse;
-//        p.material.cAmbient = m_global.ka * p.material.cAmbient;
-//        m_phongShader->applyMaterial(p.material);
-//        m_phongShader->setUniform("m", trans);
-//        switch(p.type){
-//        case PrimitiveType::PRIMITIVE_CUBE:
-//            m_cube->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_CONE:
-//            m_cone->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_CYLINDER:
-//            m_cylinder->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_SPHERE:
-//            m_sphere->draw();
-//            break;
-//        }
-//    }
-//    int size = m_primitives.size();
-//    for(int i = 0; i < size; i++){
-//        CS123ScenePrimitive p = m_primitives[i];
-//        glm::mat4 t = m_trans[i];
-//        m_phongShader->applyMaterial(p.material);
-//        m_phongShader->setUniform("m", t);
-//        switch(p.type){
-//        case PrimitiveType::PRIMITIVE_CUBE:
-//            m_cube->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_CONE:
-//            m_cone->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_CYLINDER:
-//            m_cylinder->draw();
-//            break;
-//        case PrimitiveType::PRIMITIVE_SPHERE:
-//            m_sphere->draw();
-//            break;
-//        }
-//    }
-
 
     float scale = 1.0f / 10.0f;
     CS123ScenePrimitive branch = getBranch();
     m_phongShader->applyMaterial(branch.material);
 
-    for(int i = 0; i < 5; i++){
-        for(int j = 0; j < 5; j++){
+    for(int i = 1; i < 5; i++){
+        for(int j = 1; j < 5; j++){
             int row = i * 20;
             int col = j * 20;
             glm::vec3 pos = m_terrain->getPosition(row, col);
             glm::vec3 nor = m_terrain->getNormal(row, col);
-            pos -= glm::vec3(0.0f, -1.5f, 0.0f);
+            pos += glm::vec3(0.0f, -1.5f, 0.0f);
             glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
             glm::vec3 d = nor.xyz();
-            glm::vec3 a = glm::cross(y, d);
+            glm::vec3 a = glm::cross(d, y);
 
             float omega = glm::acos(glm::dot(y, d));
-            glm::mat4 m = glm::translate(pos) * glm::rotate(omega, a) * glm::scale(glm::vec3(scale));
+            glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(1/10.f, 1/10.f, 1/10.f));
             m_phongShader->setUniform("m", m);
-            m_tree->drawLeave();
-            m_tree->drawBranch();
+            //m_tree->drawLeave();
+            //m_tree->drawBranch();
+            m_tree->draw();
         }
     }
     //CS123ScenePrimitive leave = getLeave();
 
     CS123SceneMaterial topmaterial;
-    topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
+    //topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
+    topmaterial.cAmbient = glm::vec4(140.0f / 255.0f, 139.0f / 255.0f, 146.0f / 255.0f, 1.0f);
     topmaterial.cDiffuse = glm::vec4(0.5f);
     topmaterial.cSpecular = glm::vec4(0.3f);
     topmaterial.shininess = 1.0f;
