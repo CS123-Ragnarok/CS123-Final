@@ -186,8 +186,8 @@ void SceneviewScene::renderGeometry() {
 
     for(int i = 1; i < 5; i++){
         for(int j = 1; j < 5; j++){
-            int row = i * 20;
-            int col = j * 20;
+            float row = i * 20.f;
+            float col = j * 20.f;
             glm::vec3 pos = m_terrain->getPosition(row, col);
             glm::vec3 nor = m_terrain->getNormal(row, col);
             pos += glm::vec3(0.0f, -1.5f, 0.0f);
@@ -196,7 +196,7 @@ void SceneviewScene::renderGeometry() {
             glm::vec3 a = glm::cross(d, y);
 
             float omega = glm::acos(glm::dot(y, d));
-            glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(1/10.f, 1/10.f, 1/10.f));
+            glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(1/20.f, 1/20.f, 1/20.f));
             m_phongShader->setUniform("m", m);
             m_tree->drawLeave();
             m_tree->drawBranch();

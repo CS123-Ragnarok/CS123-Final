@@ -1,4 +1,4 @@
-﻿#include "terrain.h"
+#include "terrain.h"
 
 #include <math.h>
 #include "gl/shaders/ShaderAttribLocations.h"
@@ -29,26 +29,27 @@ float Terrain::randValue(int row, int col) {
 /**
  * Returns the object-space position for the terrain vertex at the given row and column.
  */
-glm::vec3 Terrain::getPosition(int row, int col) {
+glm::vec3 Terrain::getPosition(float row, float col) {
     glm::vec3 position;
-    position.x = 10 * row/m_numRows - 5;
-    position.z = 10 * col/m_numCols - 5;
+    position.x = 10.f * row/float(m_numRows) - 5.f;
+    position.z = 10.f * col/float(m_numCols) - 5.f;
 
-    for (int i = 1; i <= 3; i++){
-
-        float A = randValue(floor(row / 20 * i), floor(col / 20 * i));
-        float B = randValue(floor(row / 20 * i), floor(col / 20 * i)+1);
-        float C = randValue(floor(row / 20 * i)+1, floor(col / 20 * i));
-        float D = randValue(floor(row / 20 * i)+1, floor(col / 20 * i)+1);
+    float e = 0.f;
+    for (float i = 1; i <= 4; i *= 2.f){
+        float A = randValue(floor(row / 20.f * i), floor(col / 20.f * i));
+        float B = randValue(floor(row / 20.f * i), floor(col / 20.f * i)+1);
+        float C = randValue(floor(row / 20.f * i)+1, floor(col / 20.f * i));
+        float D = randValue(floor(row / 20.f * i)+1, floor(col / 20.f * i)+1);
 
         float x = glm::fract(col/20.f * i);
         float y = glm::fract(row/20.f * i);
         float AB = glm::mix(A, B, (float) x*x*(3-2*x));
         float CD = glm::mix(C, D, (float) x*x*(3-2*x));
         float val = glm::mix(AB, CD, (float) y*y*(3-2*y));
-        position.y += val / pow(4.f, (float) (i-1));
-
+        e += (1.f / glm::exp2(i-1)) * val;
     }
+    e = (e>0) ? pow(e, 1.5f) : -pow(-e, 1.5f);
+    position.y = std::max(e, -1.f);
     return position;
 }
 
@@ -56,7 +57,7 @@ glm::vec3 Terrain::getPosition(int row, int col) {
 /**
  * Returns the normal vector for the terrain vertex at the given row and column.
  */
-glm::vec3 Terrain::getNormal(int row, int col) {
+glm::vec3 Terrain::getNormal(float row, float col) {
     // TODO: Compute the normal at the given row and column using the positions of the
     //       neighboring vertices.
     auto p = getPosition(row, col);
@@ -121,7 +122,7 @@ void Terrain::init() {
 void Terrain::genSides() {
     glm::vec3 temp, first, last;
     int index;
-    float bot_y = -1.5f;
+    float bot_y = -1.0f;
     // right
     index = 0;
     std::vector<glm::vec3> right_data(4 * m_numCols + 4);

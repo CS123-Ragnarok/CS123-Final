@@ -20,8 +20,8 @@ public:
     void draw();
     void drawTop();
     void drawElse();
-    glm::vec3 getPosition(int row, int col);
-    glm::vec3 getNormal(int row, int col);
+    glm::vec3 getPosition(float row, float col);
+    glm::vec3 getNormal(float row, float col);
 
 private:
     void genSides();
