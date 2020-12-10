@@ -186,13 +186,13 @@ void SceneviewScene::renderSnow(int mili)
 {
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    srand(mili);
+    srand(mili+1);
     if(m_snow.size() < 1000){
         for(int i = 0; i < 1; i++)
         {
             Snow *snow_token = new Snow();
             snow_token->lifeLength = 10;
-            snow_token->pos.y = 5.0f;
+            snow_token->pos.y = 4.0f;
             snow_token->pos.x = (rand() % 1000) / 100.0f - 5.0f;
             snow_token->pos.z = (rand() % 1000) / 100.0f - 5.0f;
             snow_token->velocity = glm::vec3(0);
