@@ -65,7 +65,7 @@ void View::paintGL() {
     float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
     glViewport(0, 0, width() * ratio, height() * ratio);
     m_defaultOrbitingCamera.get()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
-    m_scene->render(getCamera());
+    m_scene->render(getCamera(), m_time.second(), m_time.msec());
     //m_terrain->render(getCamera());
 }
 

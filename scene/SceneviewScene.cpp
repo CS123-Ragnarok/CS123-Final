@@ -21,6 +21,8 @@
 
 using namespace CS123::GL;
 
+
+
 SceneviewScene::SceneviewScene()
 {
     // TODO: [SCENEVIEW] Set up anything you need for your Sceneview scene here...
@@ -50,8 +52,19 @@ SceneviewScene::SceneviewScene()
     m_trees.reserve(25);
     for(int i = 0; i < 25; i++){
         m_trees.push_back(std::make_unique<MeshGenerator>(i));
-        m_trees[i]->GenerateMesh("+TT+R", 4, glm::vec3(0.0f), 0.05f);
+        m_trees[i]->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.05f);
     }
+
+    m_sphere = std::make_unique<SphereShape>(20, 20);
+
+    m_snow.reserve(1000);
+    for(int i = 0; i < 1000; i++){
+        struct Snow temp;
+        temp.flag = false;
+        m_snow.push_back(temp);
+    }
+
+
 //    m_timer.start(1000.0f / m_fps);
 //    m_increment = 0;
 }
@@ -83,6 +96,16 @@ CS123ScenePrimitive SceneviewScene::getLeave(){
     res.material.cDiffuse = glm::vec4(0.5f);
     res.material.cSpecular = glm::vec4(0.5f);
     res.material.shininess = 1.0f;
+    return res;
+}
+
+CS123ScenePrimitive SceneviewScene::getSnow(){
+    CS123ScenePrimitive res;
+    res.type = PrimitiveType::PRIMITIVE_CYLINDER;
+    res.material.cAmbient = glm::vec4(255.0f / 255.0f, 250.0f / 255.0f, 250.0f / 255.0f, 1.0f);
+    res.material.cDiffuse = glm::vec4(0.75f);
+    res.material.cSpecular = glm::vec4(0.75f);
+    res.material.shininess = 2.0f;
     return res;
 }
 
@@ -149,13 +172,45 @@ void SceneviewScene::paintTrees(){
     paintTree(glm::vec4(0.0f), glm::vec4(1.0f / sqrt(6), 2.0f / sqrt(6), 1.0f / sqrt(6),0.0f), "f[-f][+f]f", 1.0f, glm::radians(90.0f));
 }
 
-void SceneviewScene::render(Camera * camera) {
+void SceneviewScene::render(Camera * camera, int time, int mili) {
+    m_time = time;
     glClearColor(53.f/255.f, 81.f/255.f, 92.f/255.f, 1.f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     m_phongShader->bind();
     setSceneUniforms(camera);
     setLights();
+
+    srand(time);
+
+    //std::cout << time << std::endl;
+
+    for(int i = 0; i < 1000; i++){
+        if(!m_snow[i].flag){
+            int lottery = rand() % total;
+            if(lottery == 8){
+                m_snow[i].flag = true;
+                m_snow[i].x = rand() % 100;
+                m_snow[i].z = rand() % 100;
+                m_snow[i].start = time;
+                m_snow[i].current_height = y_start;
+            }
+        } else {
+            int time_interval = time - m_snow[i].start;
+            if(time_interval < 0){
+                time_interval += 60;
+            }
+            m_snow[i].current_height = y_start - speed * (float)(time_interval) - speed * (mili) / 1000.0f;
+            float height_limit = m_terrain->getPosition(m_snow[i].x, m_snow[i].z).y - 1.5f;
+            if(m_snow[i].current_height < height_limit){
+                m_snow[i].flag = false;
+            }
+        }
+    }
+    if(total != 10){
+        total = 600 - 10 * time;
+    }
+
     renderGeometry();
     glBindTexture(GL_TEXTURE_2D, 0);
     m_phongShader->unbind();
@@ -211,6 +266,17 @@ void SceneviewScene::renderGeometry() {
         }
     }
     //CS123ScenePrimitive leave = getLeave();
+
+
+    m_phongShader->applyMaterial(getSnow().material);
+    for(int i = 0; i< 1000; i++){
+        if(m_snow[i].flag){
+            glm::mat4 m = glm::translate(glm::vec3((float)m_snow[i].x / 10.0f - 5.0f, m_snow[i].current_height,(float)m_snow[i].z / 10.0f - 5.0f)) * glm::scale(glm::vec3(1/20.f));
+            m_phongShader->setUniform("m", m);
+            m_sphere->draw();
+        }
+    }
+
 
     CS123SceneMaterial topmaterial;
     //topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
