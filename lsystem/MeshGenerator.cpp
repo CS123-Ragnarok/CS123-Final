@@ -87,7 +87,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
     std::vector<int> close_index;
     m_lsystem->change_base(L_base);
     std::string system = m_lsystem->derivation(iterations);
-    std::cout<<"generated system: "<<system<<std::endl;
+    //std::cout<<"generated system: "<<system<<std::endl;
 
     glm::vec3 direction = glm::vec3(0, 1, 0);
     glm::vec3 pos = start_pos;
@@ -166,7 +166,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
 
 
     }
-    std::cout<<"MeshGenerator::GenerateMesh()  finish parse the system"<<std::endl;
+    //std::cout<<"MeshGenerator::GenerateMesh()  finish parse the system"<<std::endl;
     //generate vertices for mesh
     std::vector<std::pair<int, std::vector<glm::vec3>>> mesh_list = MeshGenerator::generate_vertice(points_list);
     //generate mesh

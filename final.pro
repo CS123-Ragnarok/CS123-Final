@@ -52,8 +52,8 @@ SOURCES += \
     shapes/CylinderShape.cpp \
     shapes/Shape.cpp \
     shapes/SphereShape.cpp \
-    src_blin/LSystem.cpp \
-    src_blin/MeshGenerator.cpp
+    lsystem/LSystem.cpp \
+    lsystem/MeshGenerator.cpp
 
 
 HEADERS += \
@@ -88,9 +88,9 @@ HEADERS += \
     shapes/CylinderShape.h \
     shapes/Shape.h \
     shapes/SphereShape.h \
-    src_blin/LSystem.h \
-    src_blin/MeshGenerator.h \
-    src_blin/particle.h
+    lsystem/LSystem.h \
+    lsystem/MeshGenerator.h
+    lsystem/particle.h
    
 
 FORMS += ui/mainwindow.ui

@@ -98,7 +98,6 @@ void View::mouseMoveEvent(QMouseEvent *event) {
         if (!deltaX && !deltaY) return;
         QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 
-        // TODO: Handle mouse movements here
     }
     if (m_isDragging) {
         m_defaultOrbitingCamera.get()->mouseDragged(event->x(), event->y());

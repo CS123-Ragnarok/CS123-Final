@@ -3,6 +3,7 @@
 #include <math.h>
 #include "gl/shaders/ShaderAttribLocations.h"
 #include <iostream>
+#include <glm/gtx/vector_angle.hpp>
 
 #include "lib/ResourceLoader.h"
 #include "lib/CS123SceneData.h"
@@ -49,7 +50,7 @@ glm::vec3 Terrain::getPosition(float row, float col) {
         e += (1.f / glm::exp2(i-1)) * val;
     }
     e = (e>0) ? pow(e, 1.5f) : -pow(-e, 1.5f);
-    position.y = std::max(e, -1.f);
+    position.y = std::max(e, waterLevel);
     return position;
 }
 
@@ -58,8 +59,6 @@ glm::vec3 Terrain::getPosition(float row, float col) {
  * Returns the normal vector for the terrain vertex at the given row and column.
  */
 glm::vec3 Terrain::getNormal(float row, float col) {
-    // TODO: Compute the normal at the given row and column using the positions of the
-    //       neighboring vertices.
     auto p = getPosition(row, col);
     auto n0 = getPosition(row, col+1);
     auto n1 = getPosition(row-1, col+1);
@@ -93,26 +92,62 @@ void Terrain::init() {
     // Initializes a grid of vertices using triangle strips.
     // top
     int numVertices = (m_numRows - 1) * (2 * m_numCols + 2);
-    std::vector<glm::vec3> data(2 * numVertices);
+    std::vector<glm::vec3> data(3 * numVertices);
     int index = 0;
+    glm::vec3 pos;
+    glm::vec3 nor;
     for (int row = 0; row < m_numRows - 1; row++) {
         for (int col = m_numCols - 1; col >= 0; col--) {
-            data[index++] = getPosition(row, col);
-            data[index++] = getNormal  (row, col);
-            data[index++] = getPosition(row + 1, col);
-            data[index++] = getNormal  (row + 1, col);
+            pos = getPosition(row, col);
+            nor = getNormal  (row, col);
+            if (pos.y == waterLevel) {
+                nor = glm::vec3(0.f, 1.f, 0.f);
+                data[index++] = glm::vec3(0.f, 0.f, 1.f);
+            } else {
+                data[index++] = glm::vec3(1.f, 0.f, 0.f);
+            }
+
+            data[index++] = pos;
+            data[index++] = nor;
+            if (pos.y == waterLevel) {
+                nor = glm::vec3(0.f, 1.f, 0.f);
+                data[index++] = glm::vec3(0.f, 0.f, 1.f);
+            } else {
+                data[index++] = glm::vec3(1.f, 0.f, 0.f);
+            }
+            pos = getPosition(row + 1, col);
+            nor = getNormal  (row + 1, col);
+            data[index++] = pos;
+            data[index++] = nor;
         }
-        data[index++] = getPosition(row + 1, 0);
-        data[index++] = getNormal  (row + 1, 0);
-        data[index++] = getPosition(row + 1, m_numCols - 1);
-        data[index++] = getNormal  (row + 1, m_numCols - 1);
+
+        pos = getPosition(row + 1, 0);
+        nor = getNormal  (row + 1, 0);
+        if (pos.y == waterLevel) {
+            nor = glm::vec3(0.f, 1.f, 0.f);
+            data[index++] = glm::vec3(0.f, 0.f, 1.f);
+        } else {
+            data[index++] = glm::vec3(1.f, 0.f, 0.f);
+        }
+        data[index++] = pos;
+        data[index++] = nor;
+        pos = getPosition(row + 1, m_numCols - 1);
+        nor = getNormal  (row + 1, m_numCols - 1);
+        if (pos.y == waterLevel) {
+            nor = glm::vec3(0.f, 1.f, 0.f);
+            data[index++] = glm::vec3(0.f, 0.f, 1.f);
+        } else {
+            data[index++] = glm::vec3(1.f, 0.f, 0.f);
+        }
+        data[index++] = pos;
+        data[index++] = nor;
     }
     // Initialize OpenGLShape.
     m_top = std::make_unique<OpenGLShape>();
     m_top->setVertexData(&data[0][0], data.size() * 3, VBO::GEOMETRY_LAYOUT::LAYOUT_TRIANGLE_STRIP, numVertices);
-    m_top->setAttribute(ShaderAttrib::POSITION, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
-    m_top->setAttribute(ShaderAttrib::NORMAL, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
-    //m_shape->setAttribute(ShaderAttrib::TEXCOORD2, 2, 2*sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_top->setAttribute(ShaderAttrib::TERRAIN, 3, 0, VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_top->setAttribute(ShaderAttrib::POSITION, 3, sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
+    m_top->setAttribute(ShaderAttrib::NORMAL, 3, 2*sizeof(glm::vec3), VBOAttribMarker::DATA_TYPE::FLOAT, false);
     m_top->buildVAO();
 
     // initialize side boxes
