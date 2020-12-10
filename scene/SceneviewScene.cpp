@@ -13,6 +13,7 @@
 #include "shapes/CubeShape.h"
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
+#include <glm/gtx/string_cast.hpp>
 
 #include <list>
 
@@ -35,14 +36,6 @@ SceneviewScene::SceneviewScene()
     m_testLight.color = glm::vec4(1.0f);
 
     genTrees();
-    m_snow.reserve(1000);
-    for(int i = 0; i < 1000; i++){
-        struct Snow temp;
-        temp.flag = false;
-        m_snow.push_back(temp);
-    }
-
-
 //    m_timer.start(1000.0f / m_fps);
 //    m_increment = 0;
 }
@@ -156,40 +149,64 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
     setSceneUniforms(camera);
     setLights();
 
-    srand(time);
-
-    for(int i = 0; i < 1000; i++){
-        if(!m_snow[i].flag){
-            int lottery = rand() % total;
-            if(lottery == 8){
-                m_snow[i].flag = true;
-                m_snow[i].x = rand() % 100;
-                m_snow[i].z = rand() % 100;
-                m_snow[i].start = time;
-                m_snow[i].current_height = y_start;
-            }
-        } else {
-            int time_interval = time - m_snow[i].start;
-            if(time_interval < 0){
-                time_interval += 60;
-            }
-            m_snow[i].current_height = y_start - speed * (float)(time_interval) - speed * (mili) / 1000.0f;
-            float height_limit = m_terrain->getPosition(m_snow[i].x, m_snow[i].z).y - 1.5f;
-            if(m_snow[i].current_height < height_limit){
-                m_snow[i].flag = false;
-            }
-        }
-    }
-    if(total != 10){
-        total = 600 - 10 * time;
-    }
-
+    renderSnow(mili);
     renderGeometry();
     glBindTexture(GL_TEXTURE_2D, 0);
     m_phongShader->unbind();
 
 }
+void SceneviewScene::renderSnow(int mili)
+{
 
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    srand(mili);
+    if(m_snow.size() < 1000){
+        for(int i = 0; i < 1; i++)
+        {
+            Snow *snow_token = new Snow();
+            snow_token->lifeLength = 10;
+            snow_token->pos.y = 5.0f;
+            snow_token->pos.x = (rand() % 1000) / 100.0f - 5.0f;
+            snow_token->pos.z = (rand() % 1000) / 100.0f - 5.0f;
+            snow_token->velocity = glm::vec3(0);
+            snow_token->gravityEffect = 0.3;
+            m_snow.push_back(snow_token);
+        }
+    }
+
+    for(int i = 0; i < m_snow.size(); i++)
+    {
+        bool isAlived = updateSnow(*m_snow.at(i));
+        if(!isAlived){
+            delete m_snow.at(i);
+            m_snow.erase(m_snow.begin()+i);
+        }
+        else
+        {
+            Snow* snow_tkn = m_snow[i];
+            m_phongShader->applyMaterial(getSnow().material);
+            glm::mat4 m = glm::translate(snow_tkn->pos) * glm::scale(glm::vec3(1/20.f));
+            m_phongShader->setUniform("m", m);
+            m_sphere->draw();
+        }
+
+    }
+    return;
+
+}
+
+
+bool SceneviewScene::updateSnow(Snow& sw){
+
+   sw.velocity.y += GRAVITY * sw.gravityEffect * dt;
+   // sw.velocity.y = -15;
+    std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
+    sw.pos += sw.velocity * (float)dt;
+     std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
+    sw.elapsedTime += dt;
+    return sw.pos.y >= -1.5;
+
+}
 void SceneviewScene::setSceneUniforms(Camera * camera) {
     m_phongShader->setUniform("useLighting", true);
     m_phongShader->setUniform("p" , camera->getProjectionMatrix());
@@ -215,15 +232,6 @@ void SceneviewScene::renderGeometry() {
         glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(scale));
         m_phongShader->setUniform("m", m);
         m_trees[i]->draw();
-    }
-
-    m_phongShader->applyMaterial(getSnow().material);
-    for(int i = 0; i< 1000; i++){
-        if(m_snow[i].flag){
-            glm::mat4 m = glm::translate(glm::vec3((float)m_snow[i].x / 10.0f - 5.0f, m_snow[i].current_height,(float)m_snow[i].z / 10.0f - 5.0f)) * glm::scale(glm::vec3(1/20.f));
-            m_phongShader->setUniform("m", m);
-            m_sphere->draw();
-        }
     }
 
 
@@ -270,4 +278,5 @@ void SceneviewScene::genTrees() {
         index++;
     }
 }
+
 
