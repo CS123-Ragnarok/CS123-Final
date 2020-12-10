@@ -4,6 +4,8 @@ layout(location = 0) in vec3 position; // Position of the vertex
 layout(location = 1) in vec3 normal;   // Normal of the vertex
 layout(location = 5) in vec2 texCoord; // UV texture coordinates
 layout(location = 10) in float arrowOffset; // Sideways offset for billboarded normal arrows
+layout(location = 9) in vec3 terrain; // snow, rock, water
+
 
 out vec3 color; // Computed color for this vertex
 out vec2 texc;
@@ -29,6 +31,11 @@ uniform float shininess;
 
 uniform bool useLighting;     // Whether to calculate lighting using lighting equation
 uniform bool useArrowOffsets; // True if rendering the arrowhead of a normal for Shapes
+
+// Snow terrain
+uniform bool isTerrain = false;
+uniform vec3 rock_color;
+uniform vec3 water_color;
 
 void main()
 {
@@ -63,9 +70,16 @@ void main()
                 vertexToLight = normalize(v * vec4(-lightDirections[i], 0));
             }
 
+            vec3 objectColor;
+            if (isTerrain) {
+                objectColor = terrain.x * diffuse_color + terrain.y * rock_color + terrain.z * water_color;
+            } else {
+                objectColor = diffuse_color;
+            }
+
             // Add diffuse component
             float diffuseIntensity = max(0.0, dot(vertexToLight, normal_cameraSpace));
-            color += max(vec3(0), lightColors[i] * diffuse_color * diffuseIntensity);
+            color += max(vec3(0), lightColors[i] * objectColor * diffuseIntensity);
 
             // Add specular component
             vec4 lightReflection = normalize(-reflect(vertexToLight, normal_cameraSpace));

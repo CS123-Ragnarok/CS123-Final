@@ -7,7 +7,6 @@
 #include "glm/gtx/transform.hpp"  // glm::translate, scale, rotate
 #include "glm/gtc/type_ptr.hpp"   // glm::value_ptr
 
-
 #include "lib/ResourceLoader.h"
 #include "gl/shaders/CS123Shader.h"
 #include "shapes/ConeShape.h"
@@ -25,21 +24,8 @@ using namespace CS123::GL;
 
 SceneviewScene::SceneviewScene()
 {
-    // TODO: [SCENEVIEW] Set up anything you need for your Sceneview scene here...
     loadPhongShader();
-
-
-    m_cube = std::make_unique<CubeShape>(1, 1);
-    m_cone = std::make_unique<ConeShape>(1, 20);
-    m_cylinder = std::make_unique<CylinderShape>(1, 20);
     m_sphere = std::make_unique<SphereShape>(20, 20);
-
-    m_tree = std::make_unique<MeshGenerator>(3);
-    //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
-    //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
-    //m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
-    //m_tree->m_lsystem->add_rules('B', "XXYYYYYYYYFRFzzFRRC");
-    m_tree->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.05f);
     m_terrain = std::make_unique<Terrain>();
     m_terrain->init();
     //paintTrees();
@@ -48,15 +34,7 @@ SceneviewScene::SceneviewScene()
     m_testLight.dir = glm::normalize(glm::vec4(1.0f, -1.0f, 1.0f, 0.0f));
     m_testLight.color = glm::vec4(1.0f);
 
-
-    m_trees.reserve(25);
-    for(int i = 0; i < 25; i++){
-        m_trees.push_back(std::make_unique<MeshGenerator>(i));
-        m_trees[i]->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.05f);
-    }
-
-    m_sphere = std::make_unique<SphereShape>(20, 20);
-
+    genTrees();
     m_snow.reserve(1000);
     for(int i = 0; i < 1000; i++){
         struct Snow temp;
@@ -82,7 +60,7 @@ void SceneviewScene::loadPhongShader() {
 CS123ScenePrimitive SceneviewScene::getBranch(){
     CS123ScenePrimitive res;
     res.type = PrimitiveType::PRIMITIVE_CYLINDER;
-    res.material.cAmbient = glm::vec4(93.0f / 255.0f, 67.0f / 255.0f, 44.0f / 255.0f, 1.0f);
+    res.material.cAmbient = glm::vec4(70.0f / 255.0f, 54.0f / 255.0f, 46.0f / 255.0f, 1.0f);
     res.material.cDiffuse = glm::vec4(0.5f);
     res.material.cSpecular = glm::vec4(0.1f);
     res.material.shininess = 1.0f;
@@ -110,9 +88,6 @@ CS123ScenePrimitive SceneviewScene::getSnow(){
 }
 
 void SceneviewScene::paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle){
-    /*
-    place :
-    */
     int size = lTree.size();
     glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
     glm::vec3 d = dir.xyz();
@@ -183,8 +158,6 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
 
     srand(time);
 
-    //std::cout << time << std::endl;
-
     for(int i = 0; i < 1000; i++){
         if(!m_snow[i].flag){
             int lottery = rand() % total;
@@ -226,47 +199,23 @@ void SceneviewScene::setSceneUniforms(Camera * camera) {
 
 void SceneviewScene::setLights()
 {
-    // TODO: [SCENEVIEW] Fill this in...
-    //
-    // Set up the lighting for your scene using m_phongShader.
-    // The lighting information will most likely be stored in CS123SceneLightData structures.
-    //
-//    for(auto light : m_lights)
-//    {
-//        m_phongShader->setLight(light);
-//    }
     m_phongShader->setLight(m_testLight);
 }
 
 void SceneviewScene::renderGeometry() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    float scale = 1.0f / 10.0f;
+    float scale = 1.0f / 20.0f;
     CS123ScenePrimitive branch = getBranch();
     m_phongShader->applyMaterial(branch.material);
 
-    for(int i = 1; i < 5; i++){
-        for(int j = 1; j < 5; j++){
-            int row = i * 20;
-            int col = j * 20;
-            int index = i * 5 + j;
-            glm::vec3 pos = m_terrain->getPosition(row, col);
-            glm::vec3 nor = m_terrain->getNormal(row, col);
-            pos += glm::vec3(0.0f, -1.5f, 0.0f);
-            glm::vec3 y = glm::vec3(0.0f, 1.0f, 0.0f);
-            glm::vec3 d = nor.xyz();
-            glm::vec3 a = glm::cross(d, y);
-
-            float omega = glm::acos(glm::dot(y, d));
-            glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(1/10.f, 1/10.f, 1/10.f));
-            m_phongShader->setUniform("m", m);
-            //m_tree->drawLeave();
-            //m_tree->drawBranch();
-            m_trees[index]->draw();
-        }
+    for (int i = 0; i < tree_number; i++) {
+        auto pos = m_trees_loc[i];
+        pos += glm::vec3(0.0f, -1.5f, 0.0f);
+        glm::mat4 m = glm::translate(pos) * glm::scale(glm::vec3(scale));
+        m_phongShader->setUniform("m", m);
+        m_trees[i]->draw();
     }
-    //CS123ScenePrimitive leave = getLeave();
-
 
     m_phongShader->applyMaterial(getSnow().material);
     for(int i = 0; i< 1000; i++){
@@ -279,14 +228,14 @@ void SceneviewScene::renderGeometry() {
 
 
     CS123SceneMaterial topmaterial;
-    //topmaterial.cAmbient = glm::vec4(37.0f / 255.0f, 69.0f / 255.0f, 18.0f / 255.0f, 1.0f);
     topmaterial.cAmbient = glm::vec4(140.0f / 255.0f, 139.0f / 255.0f, 146.0f / 255.0f, 1.0f);
     topmaterial.cDiffuse = glm::vec4(0.5f);
     topmaterial.cSpecular = glm::vec4(0.3f);
     topmaterial.shininess = 1.0f;
-    //shader->applyMaterial(topmaterial);
     m_phongShader->applyMaterial(topmaterial);
-
+    m_phongShader->setUniform("isTerrain", true);
+    m_phongShader->setUniform("rock_color", glm::vec3(0.f / 255.f, 0.f / 255.f, 0.f / 255.f));
+    m_phongShader->setUniform("water_color", glm::vec3(19.f / 255.f, 38.f / 255.f, 107.f / 255.f));
     m_phongShader->setUniform("m", glm::translate(glm::mat4x4(1.0), glm::vec3(0.f, -1.5f, 0.f)));
 
     m_terrain->drawTop();
@@ -296,21 +245,29 @@ void SceneviewScene::renderGeometry() {
     sidematerial.cDiffuse = glm::vec4(0.2f);
     sidematerial.cSpecular = glm::vec4(0.f);
     sidematerial.shininess = 1.0f;
+    m_phongShader->setUniform("isTerrain", false);
     m_phongShader->applyMaterial(sidematerial);
 
     m_terrain->drawElse();
+}
 
-
-//    CS123ScenePrimitive leave = getLeave();
-//    m_phongShader->applyMaterial(leave.material);
-//    m_phongShader->setUniform("m", glm::mat4());
-//    m_tree->drawLeave();
-
-//    CS123ScenePrimitive branch = getBranch();
-//    m_phongShader->applyMaterial(branch.material);
-//    m_phongShader->setUniform("m", glm::mat4());
-//    m_tree->draw();
-
-
+void SceneviewScene::genTrees() {
+    m_trees.reserve(tree_number);
+    m_trees_loc.reserve(tree_number);
+    for(int i = 0; i < tree_number; i++){
+        m_trees.push_back(std::make_unique<MeshGenerator>(i));
+        m_trees[i]->GenerateMesh("+TT+R", 3, glm::vec3(0.0f), 0.05f);
+    }
+    int index = 0;
+    while(index < tree_number) {
+        int row = rand() % 100;
+        int col = rand() % 100;
+        glm::vec3 pos = m_terrain->getPosition(row, col);
+        if (pos.y < -0.3f || pos.y > 0.4f) {
+            continue;
+        }
+        m_trees_loc.push_back(pos);
+        index++;
+    }
 }
 

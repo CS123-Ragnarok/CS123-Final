@@ -7,7 +7,7 @@
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
 #include "lib/CS123SceneData.h"
-#include "src_blin/MeshGenerator.h"
+#include "lsystem/MeshGenerator.h"
 #include "camera/Camera.h"
 #include "terrain/terrain.h"
 
@@ -72,6 +72,7 @@ private:
     void setLights();
     void renderGeometry();
 
+    void genTrees();
     void paintTrees();
     void paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle);
 
@@ -85,7 +86,6 @@ private:
     std::unique_ptr<CS123::GL::Shader> m_normalsShader;
     std::unique_ptr<CS123::GL::Shader> m_normalsArrowShader;
 
-    std::unique_ptr<MeshGenerator> m_tree;
     std::unique_ptr<Terrain> m_terrain;
 
     std::unique_ptr<CubeShape> m_cube;
@@ -101,16 +101,16 @@ private:
      std::vector<glm::mat4> m_trans;
 
      CS123SceneLightData m_testLight;
-
      std::vector<std::unique_ptr<MeshGenerator>> m_trees;
-
+     std::vector<glm::vec3> m_trees_loc;
 
      std::vector<struct Snow> m_snow;
 
      int m_time;
      int total = 60;
      float y_start = 5.0;
-     float speed = 0.15;
+     float speed = 1.f;
+     int tree_number = 400;
 };
 
 #endif // SCENEVIEWSCENE_H
