@@ -6,9 +6,19 @@
 
 LSystem::LSystem(int seed){
     f_rules.push_back("F");
-    f_rules.push_back("F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
-    r_rules.push_back("FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
+    f_rules.push_back("F[Fz[zFZXFZYF]R[ZFxzFyzF]R[XFyzFZxF]C+]");
+    f_rules.push_back("F[XR][YR][ZR]");
+    f_rules.push_back("F[xF][yF][zF]");
+    f_rules.push_back("F[xxxRF][yyyRF][zzzRF]");
 
+    r_rules.push_back("FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
+    r_rules.push_back("F[xFR][XFR]");
+    r_rules.push_back("f[[XFyR][YFzR][ZFxR]]");
+   // r_rules.push_back("XRF");
+   // r_rules.push_back("YRF");
+   // r_rules.push_back("ZRF");
+
+    r_rules.push_back("F[xx[ZYR]yyF][zz[YXR]XXF][YY[xZR]]");
     m_rules['F'] = f_rules;
     m_rules['R'] = r_rules;
     this->seed = seed;

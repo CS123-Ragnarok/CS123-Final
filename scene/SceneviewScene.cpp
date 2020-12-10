@@ -50,7 +50,7 @@ SceneviewScene::SceneviewScene()
     m_trees.reserve(25);
     for(int i = 0; i < 25; i++){
         m_trees.push_back(std::make_unique<MeshGenerator>(i));
-        m_trees[i]->GenerateMesh("+TT+R", 2, glm::vec3(0.0f), 0.05f);
+        m_trees[i]->GenerateMesh("+TT+R", 4, glm::vec3(0.0f), 0.05f);
     }
 //    m_timer.start(1000.0f / m_fps);
 //    m_increment = 0;

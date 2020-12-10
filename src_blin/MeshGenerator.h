@@ -51,7 +51,7 @@ public:
 private:
 
 
-    float rotationOffset = M_PI / 8.0f;
+    float rotationOffset = M_PI / 10.0f;
     float scaleOffset = 2.0f;
     float translationOffset = 1.0f;
 
