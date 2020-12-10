@@ -25,7 +25,6 @@ SOURCES += \
     camera/OrbitingCamera.cpp \
     main.cpp \
     glew-1.10.0/src/glew.c \
-    src_blin/particle.cpp \
     terrain/openglshape.cpp \
     terrain/terrain.cpp \
     ui/view.cpp \
@@ -90,7 +89,7 @@ HEADERS += \
     shapes/SphereShape.h \
     src_blin/LSystem.h \
     src_blin/MeshGenerator.h \
-    src_blin/particle.h
+   
    
 
 FORMS += ui/mainwindow.ui

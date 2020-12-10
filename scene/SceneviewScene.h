@@ -10,7 +10,7 @@
 #include "src_blin/MeshGenerator.h"
 #include "camera/Camera.h"
 #include "terrain/terrain.h"
-#include "src_blin/particle.h"
+
 
 #include <string>
 #include <QTimer>
@@ -124,8 +124,8 @@ private:
 
 
 
-      void renderParticle();
-      std::vector<Particle> m_particles;
+     // void renderParticle();
+      //std::vector<Particle> m_particles;
 
 
 };
