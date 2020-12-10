@@ -4,17 +4,16 @@
 #include "gl/datatype/VBOAttribMarker.h"
 #include "gl/shaders/ShaderAttribLocations.h"
 #include <iostream>
+#include <unordered_map>
 
 using namespace CS123::GL;
 
-MeshGenerator::MeshGenerator():
+MeshGenerator::MeshGenerator(int seed):
     m_VAO(nullptr)
 {
-    m_lsystem = std::make_unique<LSystem>();
-    m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
-    m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
-
-
+    m_lsystem = std::make_unique<LSystem>(seed);
+//    m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+//    m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
 }
 MeshGenerator::~MeshGenerator(){
 
@@ -46,16 +45,17 @@ void MeshGenerator::drawBranch(){
 }
 
 void MeshGenerator::buildVAO(){
+
     const int numFloatsPerVertex = 6;
-//    const int numVertices = m_vertexData.size() / numFloatsPerVertex;
+    const int numVertices = m_vertexData.size() / numFloatsPerVertex;
 
-//    std::vector<VBOAttribMarker> markers;
-//    markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
-//    markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
-//    VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);
-//    m_VAO = std::make_unique<VAO>(vbo, numVertices);
+    std::vector<VBOAttribMarker> markers;
+    markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
+    markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
+    VBO vbo = VBO(m_vertexData.data(), m_vertexData.size(), markers);
+    m_VAO = std::make_unique<VAO>(vbo, numVertices);
 
-
+/*
     const int num_leave_vertices = m_leaves.size() / numFloatsPerVertex;
     std::vector<VBOAttribMarker> leave_markers;
     leave_markers.push_back(VBOAttribMarker(ShaderAttrib::POSITION, 3, 0));
@@ -70,6 +70,7 @@ void MeshGenerator::buildVAO(){
     branch_markers.push_back(VBOAttribMarker(ShaderAttrib::NORMAL, 3, 3*sizeof(float)));
     VBO branch_vbo = VBO(m_branches.data(), m_branches.size(), branch_markers);
     m_branch_VAO = std::make_unique<VAO>(branch_vbo, num_branch_vertices);
+*/
 }
 
 
@@ -77,10 +78,12 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
                                  glm::vec3 start_pos, float radius)
 {
 
-    std::vector<std::tuple<glm::vec3, glm::vec3, float>> stack;     //first vec3 is pos, second vec3 is direction, third float is radius
-    std::tuple<glm::vec3, glm::vec3, float> cur;
+    std::vector<std::tuple<glm::vec3, glm::vec3, float, tree_node*>> stack;     //first vec3 is pos, second vec3 is direction, third float is radius, 4th is the last node
+    std::tuple<glm::vec3, glm::vec3, float, tree_node*> cur;                //first vec3 is pos, second vec3 is direction, third float is radius, 4th is the last node
+    tree_node* last_node = NULL;
+    tree_node* token;
 
-    std::vector<std::pair<glm::vec3, float>> points_list;           //first is pos, second is raduis
+    std::vector<tree_node*> points_list;            //first is pos, second is raduis
     std::vector<int> close_index;
     m_lsystem->change_base(L_base);
     std::string system = m_lsystem->derivation(iterations);
@@ -125,7 +128,7 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
             direction = direction * rotate_left(-rotationOffset);
             break;
         case '[':
-            cur = std::make_tuple(pos, direction, radius);
+            cur = std::make_tuple(pos, direction, radius, last_node);
             stack.push_back(cur);
             break;
         case ']':
@@ -134,17 +137,28 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
             pos = std::get<0>(cur);
             direction = std::get<1>(cur);
             radius = std::get<2>(cur);
+            last_node = std::get<3>(cur);
             break;
         case 'c':
         case 'C':
             close_index.push_back(points_list.size()-1);
             break;
         case '+': //pushes the current point to be used on the geometry
-            points_list.push_back(std::make_pair(pos, radius));
+            token = new tree_node;
+            token->pos = pos;
+            token->parent = last_node;
+            token->radius = radius;
+            last_node = token;
+            points_list.push_back(token);
             break;
         case 'F':
             pos += direction;
-            points_list.push_back(std::make_pair(pos, radius));
+            token = new tree_node;
+            token->pos = pos;
+            token->parent = last_node;
+            token->radius = radius;
+            last_node = token;
+            points_list.push_back(token);
             break;
         default:
             break;
@@ -154,87 +168,98 @@ void MeshGenerator::GenerateMesh(std::string L_base, int iterations,
     }
     std::cout<<"MeshGenerator::GenerateMesh()  finish parse the system"<<std::endl;
     //generate vertices for mesh
-    std::vector<std::vector<glm::vec3>> mesh_list = MeshGenerator::generate_vertice(points_list);
+    std::vector<std::pair<int, std::vector<glm::vec3>>> mesh_list = MeshGenerator::generate_vertice(points_list);
     //generate mesh
     MeshGenerator::create_mesh(mesh_list, points_list, close_index);
     buildVAO();
+    for(auto node : points_list)
+         delete node;
 
 }
 
 
-std::vector<std::vector<glm::vec3>> MeshGenerator::generate_vertice(std::vector<std::pair<glm::vec3, float>> points_list){
+std::vector<std::pair<int, std::vector<glm::vec3>>> MeshGenerator::generate_vertice(std::vector<tree_node*> points_list)
+{
 
-    std::vector<std::vector<glm::vec3>> mesh_list;
-    for (int i = 0; i < points_list.size(); i++)
+    glm::vec3 non_existed = glm::vec3(FLT_MIN, FLT_MIN, FLT_MIN);
+    myMap pos2index;
+    pos2index[non_existed] = -1;
+    std::vector<std::pair<int, std::vector<glm::vec3>>> mesh_list;
+    for(int i = 0; i < points_list.size(); i++)
     {
-        std::vector<glm::vec3> points_per_level;
-        for (int j = 0; j < points_per_lvl; j++)
+        tree_node* cur_node = points_list[i];
+        glm::vec3 cur_pos = cur_node->pos;
+        tree_node* parent_node = cur_node->parent;
+        glm::vec3 parent_pos = non_existed;
+        if(parent_node != NULL)
+            parent_pos = parent_node->pos;
+        glm::vec3 radVec =  glm::vec3(cur_node->radius, 0, 0);
+        pos2index[cur_pos] = i;
+
+        std::vector<glm::vec3> level_vertices;
+        for(int j = 0; j < points_per_lvl; j++)
         {
-            glm::vec3 vertex;
-            vertex = points_list[i].first;
-            float radius =  points_list[i].second;
-            glm::vec3 radVec = glm::vec3(radius, 0, 0);
-            glm::vec3 rotAxis = vertex;
-            if (i > 1)
-               rotAxis = rotAxis - points_list[i - 1].first;
-            if (glm::length(vertex) > 0)
-               rotAxis = glm::normalize(rotAxis);
-            else if (i + 1 < points_list.size())
-               rotAxis = points_list[i + 1].first - rotAxis;
-            else //Assume 0,1,0
-               rotAxis = glm::vec3(0, 1, 0);
-
-            float theta = 2 * M_PI / points_per_lvl * j;
-            radVec = (float) cos(theta) * radVec + (glm::cross(rotAxis, radVec)) * (float)sin(theta) + rotAxis * (glm::dot(rotAxis, radVec))* (1.0f - (float)cos(theta));
-
-            points_per_level.push_back(vertex + radVec);
-         }
-         mesh_list.push_back(points_per_level);
+           glm::vec3 rotAxis = glm::vec3(0,1,0);
+           if(parent_node != NULL)
+                rotAxis = glm::normalize(cur_pos - parent_pos);
+           float theta = 2 * M_PI / points_per_lvl * j;
+           radVec = (float) cos(theta) * radVec + (glm::cross(rotAxis, radVec)) * (float)sin(theta) + rotAxis * (glm::dot(rotAxis, radVec))* (1.0f - (float)cos(theta));
+           level_vertices.push_back(cur_pos + radVec);
+        }
+        int parent_level_index = pos2index[parent_pos];
+        mesh_list.push_back(std::make_pair(parent_level_index, level_vertices));
     }
     return mesh_list;
+
 }
 
-void MeshGenerator::create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
-                                std::vector<std::pair<glm::vec3, float>> points_list,
+void MeshGenerator::create_mesh(std::vector<std::pair<int, std::vector<glm::vec3>>> mesh_list,
+                               std::vector<tree_node*> points_list,
                                  std::vector<int> close_index)
 {
     for(int i = 0; i < mesh_list.size(); i++)
     {
-
-        int currentSize = mesh_list[i].size();
-        int nextRowSize = mesh_list[(i + 1) % mesh_list.size()].size();
-        bool closedOff = false;
-        for (int k = 0; k < currentSize; k++)
-        {
-            //Draw to the next layer of points, unless this is the first or last layer.
-            //In those situations the shape needs to close, so connect those to the center points.
-            int k_next = (k + 1) % currentSize;
-            if (i == 0 || i == mesh_list.size() - 1)
+            int parent_lvl_index = mesh_list[i].first;
+            std::vector<glm::vec3> parent_lvl_vertices;
+            if(parent_lvl_index != -1)
+                parent_lvl_vertices = mesh_list[parent_lvl_index].second;
+            int parent_lvl_size = parent_lvl_vertices.size();
+            std::vector<glm::vec3> current_lvl_vertices =  mesh_list[i].second;
+            int current_lvl_size = current_lvl_vertices.size();
+            bool closedOff = false;
+            for (int k = 0; k < current_lvl_size; k++)
             {
-                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first, 0);
-            }
+                //Draw to the next layer of points, unless this is the first or last layer.
+                //In those situations the shape needs to close, so connect those to the center points.
+                int k_next = (k + 1) % current_lvl_size;
+                if (parent_lvl_size == 0)
+                {
+                    add_triangle_face(current_lvl_vertices[k], current_lvl_vertices[k_next], points_list[i]->pos,1);
+                    continue;
+                }
 
-            //Don't connect points to the next layer of the index is a close off point
-            if (closedOff || (close_index.size() > 0 && i == close_index.front()))
-            {
+                //Don't connect points to the next layer of the index is a close off point
+                if (closedOff || (close_index.size() > 0 && i == close_index.front()))
+                {
+                    add_triangle_face(current_lvl_vertices[k], current_lvl_vertices[k_next], points_list[i]->pos,1);
+                    closedOff = true;
 
-                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], points_list[i].first, 0);
-                closedOff = true;
-                continue;
-            }
-            //Need to draw the face
-            //Two triangles per face
-            //Draw the first triangle of the face
-            if( i < mesh_list.size() -1){
-                add_triangle_face(mesh_list[i][k], mesh_list[i][k_next], mesh_list[i + 1][k], 1);
-                add_triangle_face(mesh_list[i][k_next], mesh_list[i+1][k_next], mesh_list[i+1][k], 1);
+                }
+                //Need to draw the face
+                //Two triangles per face
+                //Draw the first triangle of the face
+
+                 add_triangle_face(parent_lvl_vertices[k], parent_lvl_vertices[k_next], current_lvl_vertices[k], 0);
+                 add_triangle_face(parent_lvl_vertices[k_next], current_lvl_vertices[k_next],  current_lvl_vertices[k], 0);
+
 
             }
+            if(closedOff)
+                close_index.erase(close_index.begin());
         }
-        if(closedOff)
-            close_index.erase(close_index.begin());
-    }
 }
+
+
 
 glm::mat3 MeshGenerator::rotate_up(float rad)
 {
@@ -272,12 +297,13 @@ void MeshGenerator::add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, 
 
 }
 void MeshGenerator::add_single_vertex(glm::vec3 point, glm::vec3 normal, int choice){
-//    m_vertexData.push_back(point.x);
-//    m_vertexData.push_back(point.y);
-//    m_vertexData.push_back(point.z);
-//    m_vertexData.push_back(normal[0]);
-//    m_vertexData.push_back(normal[1]);
-//    m_vertexData.push_back(normal[2]);
+    m_vertexData.push_back(point.x);
+    m_vertexData.push_back(point.y);
+    m_vertexData.push_back(point.z);
+    m_vertexData.push_back(normal[0]);
+    m_vertexData.push_back(normal[1]);
+    m_vertexData.push_back(normal[2]);
+    /*
     if(choice == 0) {
         m_branches.push_back(point.x);
         m_branches.push_back(point.y);
@@ -293,4 +319,5 @@ void MeshGenerator::add_single_vertex(glm::vec3 point, glm::vec3 normal, int cho
         m_leaves.push_back(normal[1]);
         m_leaves.push_back(normal[2]);
     }
+    */
 }

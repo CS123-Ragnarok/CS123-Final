@@ -17,6 +17,15 @@
 #include <memory>
 
 
+struct Snow {
+    int x;
+    int z;
+    float current_height;
+    bool flag;
+    int start;
+};
+
+
 namespace CS123 { namespace GL {
 
     class Shader;
@@ -44,7 +53,7 @@ public:
     SceneviewScene();
     virtual ~SceneviewScene();
 
-    virtual void render(Camera * camera);
+    virtual void render(Camera * camera, int time, int mili);
 
 
     // Use this method to set an internal selection, based on the (x, y) position of the mouse
@@ -68,6 +77,7 @@ private:
 
     CS123ScenePrimitive getBranch();
     CS123ScenePrimitive getLeave();
+    CS123ScenePrimitive getSnow();
 
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
@@ -92,9 +102,15 @@ private:
 
      CS123SceneLightData m_testLight;
 
+     std::vector<std::unique_ptr<MeshGenerator>> m_trees;
 
 
+     std::vector<struct Snow> m_snow;
 
+     int m_time;
+     int total = 60;
+     float y_start = 5.0;
+     float speed = 0.15;
 };
 
 #endif // SCENEVIEWSCENE_H

@@ -6,12 +6,34 @@
 #include "GL/glew.h"
 #include "gl/datatype/VAO.h"
 
-#include<memory>
+#include <unordered_map>
+#include <memory>
 #include <vector>
 
+struct tree_node{
+    glm::vec3 pos;
+    tree_node* parent;
+
+    float radius;
+};
+
+struct KeyFuncs
+{
+    size_t operator()(const glm::vec3& k)const
+    {
+        return std::hash<int>()(k.x) ^ std::hash<int>()(k.y) ^ std::hash<int>()(k.z);
+    }
+
+    bool operator()(const glm::vec3& a, const glm::vec3& b)const
+    {
+            return a.x == b.x && a.y == b.y && a.z == b.z;
+    }
+};
+
+typedef std::unordered_map<glm::vec3, int, KeyFuncs, KeyFuncs> myMap;
 class MeshGenerator {
 public:
-    MeshGenerator();
+    MeshGenerator(int seed);
     ~MeshGenerator();
 
     void draw();
@@ -19,7 +41,7 @@ public:
     void drawBranch();
     void buildVAO();
 
-    void GenerateMesh(std::string system, int iterations, glm::vec3 startingPoint, float radius);
+    void GenerateMesh(std::string L_base, int iterations, glm::vec3 start_pos, float radius);
 
     int points_per_lvl = 10;
 
@@ -29,7 +51,7 @@ public:
 private:
 
 
-    float rotationOffset = M_PI / 8.0f;
+    float rotationOffset = M_PI / 10.0f;
     float scaleOffset = 2.0f;
     float translationOffset = 1.0f;
 
@@ -42,11 +64,12 @@ private:
     std::unique_ptr<CS123::GL::VAO> m_leave_VAO;
     std::unique_ptr<CS123::GL::VAO> m_branch_VAO;
 
-     std::vector<std::vector<glm::vec3>> generate_vertice(std::vector<std::pair<glm::vec3, float>> points_list);
+    std::vector<std::pair<int, std::vector<glm::vec3>>> generate_vertice(std::vector<tree_node*> points_list);
 
-     void create_mesh(std::vector<std::vector<glm::vec3>> mesh_list,
-                      std::vector<std::pair<glm::vec3, float>> points_list,
-                      std::vector<int> close_index);
+
+     void create_mesh(std::vector<std::pair<int, std::vector<glm::vec3>>> mesh_list,
+                                    std::vector<tree_node*> points_list,
+                                      std::vector<int> close_index);
 
      void add_triangle_face(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, int choice);
 
