@@ -281,7 +281,6 @@ DIST          = shaders/normals/normals.vert \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -532,7 +531,6 @@ Makefile: final.pro /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/linux-g++/qmake.
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/qt_config.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/linux-g++/qmake.conf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/spec_post.prf \
-		.qmake.stash \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/exclusive_builds.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/toolchain.prf \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/default_pre.prf \
@@ -712,7 +710,6 @@ Makefile: final.pro /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/linux-g++/qmake.
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/qt_config.prf:
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/linux-g++/qmake.conf:
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/spec_post.prf:
-.qmake.stash:
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/exclusive_builds.prf:
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/toolchain.prf:
 /home/jeremy/Qt5.14.2/5.14.2/gcc_64/mkspecs/features/default_pre.prf:
@@ -1001,8 +998,8 @@ moc_view.cpp: ui/view.h \
 		shapes/CylinderShape.h \
 		shapes/SphereShape.h \
 		lib/CS123SceneData.h \
-		camera/Camera.h \
-		terrain/terrain.h \
+		lsystem/MeshGenerator.h \
+		lsystem/LSystem.h \
 		glm/gtx/transform.hpp \
 		glm/gtc/matrix_transform.hpp \
 		glm/gtc/matrix_transform.inl \
@@ -1013,6 +1010,9 @@ moc_view.cpp: ui/view.h \
 		glm/gtc/constants.inl \
 		glm/gtc/quaternion.inl \
 		glm/gtc/type_ptr.inl \
+		gl/datatype/VAO.h \
+		camera/Camera.h \
+		terrain/terrain.h \
 		gl/shaders/CS123Shader.h \
 		gl/shaders/Shader.h \
 		terrain/openglshape.h \
@@ -1350,8 +1350,8 @@ ui_mainwindow.h: ui/mainwindow.ui \
 		shapes/CylinderShape.h \
 		shapes/SphereShape.h \
 		lib/CS123SceneData.h \
-		camera/Camera.h \
-		terrain/terrain.h \
+		lsystem/MeshGenerator.h \
+		lsystem/LSystem.h \
 		glm/gtx/transform.hpp \
 		glm/gtc/matrix_transform.hpp \
 		glm/gtc/matrix_transform.inl \
@@ -1362,6 +1362,9 @@ ui_mainwindow.h: ui/mainwindow.ui \
 		glm/gtc/constants.inl \
 		glm/gtc/quaternion.inl \
 		glm/gtc/type_ptr.inl \
+		gl/datatype/VAO.h \
+		camera/Camera.h \
+		terrain/terrain.h \
 		gl/shaders/CS123Shader.h \
 		gl/shaders/Shader.h \
 		terrain/openglshape.h \
@@ -1908,8 +1911,8 @@ view.o: ui/view.cpp ui/view.h \
 		shapes/CylinderShape.h \
 		shapes/SphereShape.h \
 		lib/CS123SceneData.h \
-		camera/Camera.h \
-		terrain/terrain.h \
+		lsystem/MeshGenerator.h \
+		lsystem/LSystem.h \
 		glm/gtx/transform.hpp \
 		glm/gtc/matrix_transform.hpp \
 		glm/gtc/matrix_transform.inl \
@@ -1920,6 +1923,9 @@ view.o: ui/view.cpp ui/view.h \
 		glm/gtc/constants.inl \
 		glm/gtc/quaternion.inl \
 		glm/gtc/type_ptr.inl \
+		gl/datatype/VAO.h \
+		camera/Camera.h \
+		terrain/terrain.h \
 		gl/shaders/CS123Shader.h \
 		gl/shaders/Shader.h \
 		terrain/openglshape.h \
@@ -2058,10 +2064,11 @@ viewformat.o: ui/viewformat.cpp ui/viewformat.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qsurfaceformat.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o viewformat.o ui/viewformat.cpp
 
-mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/QVariant \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qvariant.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qatomic.h \
+mainwindow.o: ui/mainwindow.cpp ui/mainwindow.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QMainWindow \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qmainwindow.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtguiglobal.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qglobal.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qconfig-bootstrapped.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qconfig.h \
@@ -2073,29 +2080,38 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsysinfo.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qlogging.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qflags.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qglobalstatic.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmutex.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qnumeric.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qversiontagging.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qatomic.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qbasicatomic.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qatomic_bootstrap.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qgenericatomic.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qatomic_cxx11.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qatomic_msvc.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qbytearray.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qrefcount.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qglobalstatic.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmutex.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qnumeric.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qversiontagging.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtgui-config.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtwidgets-config.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qwidget.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qwindowdefs.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobjectdefs.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qnamespace.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qarraydata.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qlist.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qalgorithms.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qiterator.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qhashfunctions.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobjectdefs_impl.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qwindowdefs_win.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobject.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstring.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qchar.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qbytearray.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qrefcount.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qarraydata.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringliteral.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringalgorithms.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringview.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringbuilder.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qlist.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qalgorithms.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qiterator.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qhashfunctions.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qpair.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qvector.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcontainertools_impl.h \
@@ -2104,43 +2120,16 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringlist.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qregexp.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qstringmatcher.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcoreevent.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qscopedpointer.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmetatype.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qvarlengtharray.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcontainerfwd.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobjectdefs.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobjectdefs_impl.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmap.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qdebug.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qhash.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qtextstream.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qiodevice.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobject.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcoreevent.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qscopedpointer.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qobject_impl.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qlocale.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qshareddata.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qset.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcontiguouscache.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsharedpointer.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsharedpointer_impl.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QApplication \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qapplication.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtwidgetsglobal.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtguiglobal.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtgui-config.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtwidgets-config.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcoreapplication.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qeventloop.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qwindowdefs.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qwindowdefs_win.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsize.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmargins.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qcursor.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qwidget.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpaintdevice.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qrect.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsize.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpalette.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qcolor.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qrgb.h \
@@ -2150,24 +2139,46 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpolygon.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qregion.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qdatastream.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qiodevice.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qline.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtransform.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpainterpath.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qimage.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpixelformat.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qpixmap.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsharedpointer.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qshareddata.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qhash.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qsharedpointer_impl.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qfont.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qfontmetrics.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qfontinfo.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qsizepolicy.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qcursor.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qkeysequence.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qevent.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qvariant.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qmap.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qdebug.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qtextstream.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qlocale.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qset.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcontiguouscache.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qurl.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qurlquery.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qfile.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qfiledevice.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qvector2d.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qtouchdevice.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtabwidget.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qicon.h \
+		ui_mainwindow.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/QVariant \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QApplication \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qapplication.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qcoreapplication.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtCore/qeventloop.h \
+		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qdesktopwidget.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qguiapplication.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qinputmethod.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QHBoxLayout \
@@ -2175,10 +2186,6 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qlayout.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qlayoutitem.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qgridlayout.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QMainWindow \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qmainwindow.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/qtabwidget.h \
-		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtGui/qicon.h \
 		/home/jeremy/Qt5.14.2/5.14.2/gcc_64/include/QtWidgets/QWidget \
 		ui/view.h \
 		glew-1.10.0/include/GL/glew.h \
@@ -2283,8 +2290,8 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		shapes/CylinderShape.h \
 		shapes/SphereShape.h \
 		lib/CS123SceneData.h \
-		camera/Camera.h \
-		terrain/terrain.h \
+		lsystem/MeshGenerator.h \
+		lsystem/LSystem.h \
 		glm/gtx/transform.hpp \
 		glm/gtc/matrix_transform.hpp \
 		glm/gtc/matrix_transform.inl \
@@ -2295,6 +2302,9 @@ mainwindow.o: ui/mainwindow.cpp ui_mainwindow.h \
 		glm/gtc/constants.inl \
 		glm/gtc/quaternion.inl \
 		glm/gtc/type_ptr.inl \
+		gl/datatype/VAO.h \
+		camera/Camera.h \
+		terrain/terrain.h \
 		gl/shaders/CS123Shader.h \
 		gl/shaders/Shader.h \
 		terrain/openglshape.h \
@@ -2698,8 +2708,8 @@ SceneviewScene.o: scene/SceneviewScene.cpp scene/SceneviewScene.h \
 		shapes/CylinderShape.h \
 		shapes/SphereShape.h \
 		lib/CS123SceneData.h \
-		camera/Camera.h \
-		terrain/terrain.h \
+		lsystem/MeshGenerator.h \
+		lsystem/LSystem.h \
 		glm/gtx/transform.hpp \
 		glm/gtc/matrix_transform.hpp \
 		glm/gtc/matrix_transform.inl \
@@ -2710,6 +2720,9 @@ SceneviewScene.o: scene/SceneviewScene.cpp scene/SceneviewScene.h \
 		glm/gtc/constants.inl \
 		glm/gtc/quaternion.inl \
 		glm/gtc/type_ptr.inl \
+		gl/datatype/VAO.h \
+		camera/Camera.h \
+		terrain/terrain.h \
 		gl/shaders/CS123Shader.h \
 		gl/shaders/Shader.h \
 		terrain/openglshape.h \
