@@ -32,7 +32,7 @@ SceneviewScene::SceneviewScene()
     m_cylinder = std::make_unique<CylinderShape>(1, 20);
     m_sphere = std::make_unique<SphereShape>(20, 20);
 
-    m_tree = std::make_unique<MeshGenerator>();
+    m_tree = std::make_unique<MeshGenerator>(3);
     //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
     //m_tree->m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]+]");
     //m_tree->m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
@@ -46,6 +46,12 @@ SceneviewScene::SceneviewScene()
     m_testLight.dir = glm::normalize(glm::vec4(1.0f, -1.0f, 1.0f, 0.0f));
     m_testLight.color = glm::vec4(1.0f);
 
+
+    m_trees.reserve(25);
+    for(int i = 0; i < 25; i++){
+        m_trees.push_back(std::make_unique<MeshGenerator>(i));
+        m_trees[i]->GenerateMesh("+TT+R", 2, glm::vec3(0.0f), 0.05f);
+    }
 //    m_timer.start(1000.0f / m_fps);
 //    m_increment = 0;
 }
@@ -188,6 +194,7 @@ void SceneviewScene::renderGeometry() {
         for(int j = 1; j < 5; j++){
             int row = i * 20;
             int col = j * 20;
+            int index = i * 5 + j;
             glm::vec3 pos = m_terrain->getPosition(row, col);
             glm::vec3 nor = m_terrain->getNormal(row, col);
             pos += glm::vec3(0.0f, -1.5f, 0.0f);
@@ -200,7 +207,7 @@ void SceneviewScene::renderGeometry() {
             m_phongShader->setUniform("m", m);
             //m_tree->drawLeave();
             //m_tree->drawBranch();
-            m_tree->draw();
+            m_trees[index]->draw();
         }
     }
     //CS123ScenePrimitive leave = getLeave();

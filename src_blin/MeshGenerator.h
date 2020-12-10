@@ -33,7 +33,7 @@ struct KeyFuncs
 typedef std::unordered_map<glm::vec3, int, KeyFuncs, KeyFuncs> myMap;
 class MeshGenerator {
 public:
-    MeshGenerator();
+    MeshGenerator(int seed);
     ~MeshGenerator();
 
     void draw();

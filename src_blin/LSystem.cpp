@@ -1,6 +1,18 @@
 #include "LSystem.h"
+#include "random"
+#include <ctime>
+#include <iostream>
 
-LSystem::LSystem(){
+
+LSystem::LSystem(int seed){
+    f_rules.push_back("F");
+    f_rules.push_back("F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+    r_rules.push_back("FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
+
+    m_rules['F'] = f_rules;
+    m_rules['R'] = r_rules;
+    this->seed = seed;
+
 }
 
 LSystem::~LSystem(){
@@ -9,9 +21,9 @@ LSystem::~LSystem(){
 
  void LSystem::add_rules(char precessor, std::string successor)
 {
-    if(m_rules.find(precessor) != m_rules.end())
-        return;
-    m_rules[precessor] = successor;
+//    if(m_rules.find(precessor) != m_rules.end())
+//        return;
+//    m_rules[precessor] = successor;
 }
 
 void LSystem::change_base(std::string new_base)
@@ -21,6 +33,7 @@ void LSystem::change_base(std::string new_base)
 
 std::string LSystem::derivation(int depth)
 {
+    srand(seed);
     while(depth > 0)
     {
 
@@ -32,7 +45,8 @@ std::string LSystem::derivation(int depth)
                 token += key;
             else
             {
-                std::string rule = m_rules.at(key);
+                int index = rand() % m_rules.at(key).size();
+                std::string rule = m_rules.at(key)[index];
                 token += rule;
             }
         }

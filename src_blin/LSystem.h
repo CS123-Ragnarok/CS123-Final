@@ -13,7 +13,7 @@ class LSystem
 {
 public:
 
-    LSystem();
+    LSystem(int seed);
     ~LSystem();
     void add_rules(char precessor, std::string successor);
     void change_base( std::string new_base);
@@ -26,9 +26,12 @@ public:
 private:
 
     std::string m_base = "";
-    std::unordered_map<char, std::string> m_rules;
+    std::unordered_map<char, std::vector<std::string>> m_rules;
 
+    std::vector<std::string> f_rules;
+    std::vector<std::string> r_rules;
 
+    int seed;
 
 };
 

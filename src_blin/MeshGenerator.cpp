@@ -8,14 +8,12 @@
 
 using namespace CS123::GL;
 
-MeshGenerator::MeshGenerator():
+MeshGenerator::MeshGenerator(int seed):
     m_VAO(nullptr)
 {
-    m_lsystem = std::make_unique<LSystem>();
-    m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
-    m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
-
-
+    m_lsystem = std::make_unique<LSystem>(seed);
+//    m_lsystem->add_rules('F', "F[Fz[zFZXFZYF]Z[ZFxzFyzF]C+]");
+//    m_lsystem->add_rules('R', "FFF[FXYZ[FxRxF[zFRzXFC]R[ZFZyFC]]yFRyF]");
 }
 MeshGenerator::~MeshGenerator(){
 

@@ -92,6 +92,8 @@ private:
 
      CS123SceneLightData m_testLight;
 
+     std::vector<std::unique_ptr<MeshGenerator>> m_trees;
+
 
 
 
