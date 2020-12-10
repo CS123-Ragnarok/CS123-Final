@@ -10,7 +10,6 @@
 #include "lsystem/MeshGenerator.h"
 #include "camera/Camera.h"
 #include "terrain/terrain.h"
-#include "src_blin/particle.h"
 
 #include <string>
 #include <QTimer>
@@ -18,17 +17,12 @@
 #include <memory>
 
 
-#define GRAVITY -1
-#define dt 0.0167
-
-
 struct Snow {
-    glm::vec3 pos;
-    glm::vec3 velocity;
+    int x;
+    int z;
+    float current_height;
+    bool flag;
     int start;
-    float gravityEffect;
-    float lifeLength;
-    float elapsedTime = 0;
 };
 
 
@@ -71,10 +65,6 @@ protected:
 private:
 
     void loadPhongShader();
-    void renderSnow(int mili);
-
-
-    bool updateSnow(Snow& sw);
 
 
     void setSceneUniforms(Camera * camera);
@@ -107,22 +97,20 @@ private:
 //     QTimer m_timer;
 //     int m_increment;
 
-    std::vector<CS123ScenePrimitive> m_primitives;
-    std::vector<glm::mat4> m_trans;
+     std::vector<CS123ScenePrimitive> m_primitives;
+     std::vector<glm::mat4> m_trans;
 
-    CS123SceneLightData m_testLight;
-    std::vector<std::unique_ptr<MeshGenerator>> m_trees;
-    std::vector<glm::vec3> m_trees_loc;
+     CS123SceneLightData m_testLight;
+     std::vector<std::unique_ptr<MeshGenerator>> m_trees;
+     std::vector<glm::vec3> m_trees_loc;
 
-    std::vector<Snow*> m_snow;
+     std::vector<struct Snow> m_snow;
 
-    int m_time;
-    int total = 60;
-    float y_start = 5.0;
-    void renderParticle();
-    std::vector<Particle> m_particles;
-    float speed = 1.f;
-    int tree_number = 400;
+     int m_time;
+     int total = 60;
+     float y_start = 5.0;
+     float speed = 1.f;
+     int tree_number = 400;
 };
 
 #endif // SCENEVIEWSCENE_H
