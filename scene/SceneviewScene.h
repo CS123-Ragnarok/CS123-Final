@@ -16,11 +16,12 @@
 
 #include <memory>
 
+#define dt 0.0167
 
 struct Snow {
-    int x;
-    int z;
-    float current_height;
+    glm::vec3 pos;
+    glm::vec3 velocity;
+    glm::vec3 gravity;
     bool flag;
     int start;
 };
@@ -65,6 +66,7 @@ protected:
 private:
 
     void loadPhongShader();
+    bool updateSnow(Snow& sw);
 
 
     void setSceneUniforms(Camera * camera);

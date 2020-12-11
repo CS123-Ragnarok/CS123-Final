@@ -163,21 +163,29 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
             int lottery = rand() % total;
             if(lottery == 8){
                 m_snow[i].flag = true;
-                m_snow[i].x = rand() % 100;
-                m_snow[i].z = rand() % 100;
+                m_snow[i].pos.y = 4.0f;
+                m_snow[i].pos.x = rand() % 100 / 10.0f - 5.0f;
+                m_snow[i].pos.z = rand() % 100 / 10.0f - 5.0f;
                 m_snow[i].start = time;
-                m_snow[i].current_height = y_start;
+                m_snow[i].velocity = glm::vec3(0);
+                m_snow[i].gravity = glm::vec3((float)(rand() % 200 / 1000.0f - 0.1),
+                                              -0.3,
+                                              (float)(rand() % 200 / 1000.0f - 0.1));
+
             }
         } else {
             int time_interval = time - m_snow[i].start;
             if(time_interval < 0){
                 time_interval += 60;
             }
-            m_snow[i].current_height = y_start - speed * (float)(time_interval) - speed * (mili) / 1000.0f;
+            bool isAlived = updateSnow(m_snow[i]);
+            m_snow[i].flag = isAlived;
+            /*
             float height_limit = m_terrain->getPosition(m_snow[i].x, m_snow[i].z).y - 1.5f;
             if(m_snow[i].current_height < height_limit){
                 m_snow[i].flag = false;
             }
+            */
         }
     }
     if(total != 10){
@@ -187,8 +195,19 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
     renderGeometry();
     glBindTexture(GL_TEXTURE_2D, 0);
     m_phongShader->unbind();
-
 }
+
+bool SceneviewScene::updateSnow(Snow& sw){
+    sw.velocity += sw.gravity * (float)dt;
+    // sw.velocity.y = -15;
+     std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
+     sw.pos += sw.velocity * (float)dt;
+     std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
+  //   sw.elapsedTime += dt;
+     return sw.pos.y >= -1.5;
+}
+
+
 
 void SceneviewScene::setSceneUniforms(Camera * camera) {
     m_phongShader->setUniform("useLighting", true);
@@ -220,7 +239,8 @@ void SceneviewScene::renderGeometry() {
     m_phongShader->applyMaterial(getSnow().material);
     for(int i = 0; i< 1000; i++){
         if(m_snow[i].flag){
-            glm::mat4 m = glm::translate(glm::vec3((float)m_snow[i].x / 10.0f - 5.0f, m_snow[i].current_height,(float)m_snow[i].z / 10.0f - 5.0f)) * glm::scale(glm::vec3(1/20.f));
+            //glm::mat4 m = glm::translate(glm::vec3((float)m_snow[i].x / 10.0f - 5.0f, m_snow[i].current_height,(float)m_snow[i].z / 10.0f - 5.0f)) * glm::scale(glm::vec3(1/20.f));
+             glm::mat4 m = glm::translate(m_snow[i].pos) * glm::scale(glm::vec3(1/20.f));
             m_phongShader->setUniform("m", m);
             m_sphere->draw();
         }
