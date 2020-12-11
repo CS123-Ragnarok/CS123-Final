@@ -23,6 +23,7 @@ private:
     QTimer m_timer;
     bool m_captureMouse;
     bool m_isDragging;
+    int m_frame_count;
 
     void initializeGL();
     void paintGL();

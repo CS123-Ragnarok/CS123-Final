@@ -303,21 +303,4 @@ void MeshGenerator::add_single_vertex(glm::vec3 point, glm::vec3 normal, int cho
     m_vertexData.push_back(normal[0]);
     m_vertexData.push_back(normal[1]);
     m_vertexData.push_back(normal[2]);
-    /*
-    if(choice == 0) {
-        m_branches.push_back(point.x);
-        m_branches.push_back(point.y);
-        m_branches.push_back(point.z);
-        m_branches.push_back(normal[0]);
-        m_branches.push_back(normal[1]);
-        m_branches.push_back(normal[2]);
-    } else {
-        m_leaves.push_back(point.x);
-        m_leaves.push_back(point.y);
-        m_leaves.push_back(point.z);
-        m_leaves.push_back(normal[0]);
-        m_leaves.push_back(normal[1]);
-        m_leaves.push_back(normal[2]);
-    }
-    */
 }

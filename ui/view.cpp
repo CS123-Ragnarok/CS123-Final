@@ -6,7 +6,7 @@
 #include <iostream>
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
-    m_time(), m_timer(), m_captureMouse(false), m_defaultOrbitingCamera(new OrbitingCamera())
+    m_time(), m_timer(), m_captureMouse(false), m_defaultOrbitingCamera(new OrbitingCamera()), m_frame_count(0)
 {
     // View needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
@@ -130,7 +130,12 @@ void View::keyReleaseEvent(QKeyEvent *event) {
 
 void View::tick() {
     // Get the number of seconds since the last tick (variable update rate)
+    m_frame_count += 1;
     float seconds = m_time.restart() * 0.001f;
+    if (m_frame_count == 60) {
+        std::cout << "Current FPS: " << 1.f / seconds << std::endl;
+        m_frame_count = 0;
+    }
 
     // TODO: Implement the demo update here
 

@@ -20,8 +20,6 @@
 
 using namespace CS123::GL;
 
-
-
 SceneviewScene::SceneviewScene()
 {
     loadPhongShader();

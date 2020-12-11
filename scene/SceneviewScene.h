@@ -113,6 +113,7 @@ private:
      float y_start = 5.0;
      float speed = 1.f;
      int tree_number = 20;
+
 };
 
 #endif // SCENEVIEWSCENE_H
