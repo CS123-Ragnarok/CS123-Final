@@ -155,23 +155,22 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
     m_phongShader->bind();
     setSceneUniforms(camera);
     setLights();
-
-    srand(time);
+   // int counter = 0;
+    srand(mili);
 
     for(int i = 0; i < 1000; i++){
         if(!m_snow[i].flag){
             int lottery = rand() % total;
             if(lottery == 8){
                 m_snow[i].flag = true;
-                m_snow[i].pos.y = 4.0f;
-                m_snow[i].pos.x = rand() % 100 / 10.0f - 5.0f;
-                m_snow[i].pos.z = rand() % 100 / 10.0f - 5.0f;
+                m_snow[i].pos.y = 3.0f;
+                m_snow[i].pos.x = (rand() % 1000) / 100.0f - 5.0f;
+                m_snow[i].pos.z = (rand() % 1000) / 100.0f - 5.0f;
                 m_snow[i].start = time;
                 m_snow[i].velocity = glm::vec3(0);
-                m_snow[i].gravity = glm::vec3((float)(rand() % 200 / 1000.0f - 0.1),
+                m_snow[i].gravity = glm::vec3((float)(rand()%200/1000.0f - 0.01),
                                               -0.3,
-                                              (float)(rand() % 200 / 1000.0f - 0.1));
-
+                                              (float)(rand()%100/1000.0f - 0.01));
             }
         } else {
             int time_interval = time - m_snow[i].start;
@@ -188,8 +187,8 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
             */
         }
     }
-    if(total != 10){
-        total = 600 - 10 * time;
+    if(total != 30){
+        total = 1800 - 30 * time;
     }
 
     renderGeometry();
@@ -199,12 +198,11 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
 
 bool SceneviewScene::updateSnow(Snow& sw){
     sw.velocity += sw.gravity * (float)dt;
-    // sw.velocity.y = -15;
-     std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
-     sw.pos += sw.velocity * (float)dt;
-     std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
-  //   sw.elapsedTime += dt;
-     return sw.pos.y >= -1.5;
+        //std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
+        sw.pos += sw.velocity * (float)dt;
+        // std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
+        //sw.elapsedTime += dt;
+        return sw.pos.y >= -1.5;
 }
 
 

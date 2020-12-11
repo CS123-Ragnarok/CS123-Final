@@ -109,10 +109,10 @@ private:
      std::vector<struct Snow> m_snow;
 
      int m_time;
-     int total = 60;
+     int total = 1800;
      float y_start = 5.0;
      float speed = 1.f;
-     int tree_number = 400;
+     int tree_number = 20;
 };
 
 #endif // SCENEVIEWSCENE_H
