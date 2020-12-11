@@ -33,16 +33,12 @@ SceneviewScene::SceneviewScene()
     m_testLight.color = glm::vec4(1.0f);
 
     genTrees();
-    m_snow.reserve(1000);
-    for(int i = 0; i < 1000; i++){
+    m_snow.reserve(250);
+    for(int i = 0; i < 250; i++){
         struct Snow temp;
         temp.flag = false;
         m_snow.push_back(temp);
     }
-
-
-//    m_timer.start(1000.0f / m_fps);
-//    m_increment = 0;
 }
 
 SceneviewScene::~SceneviewScene()
@@ -156,19 +152,21 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
    // int counter = 0;
     srand(mili);
 
-    for(int i = 0; i < 1000; i++){
+    for(int i = 0; i < m_snow.size(); i++){
         if(!m_snow[i].flag){
             int lottery = rand() % total;
             if(lottery == 8){
                 m_snow[i].flag = true;
-                m_snow[i].pos.y = 3.0f;
-                m_snow[i].pos.x = (rand() % 1000) / 100.0f - 5.0f;
-                m_snow[i].pos.z = (rand() % 1000) / 100.0f - 5.0f;
+                auto pos_x = (rand() % 1000) / 100.0f - 5.0f;
+                auto pos_z = (rand() % 1000) / 100.0f - 5.0f;
+                m_snow[i].pos.x = pos_x;
+                m_snow[i].pos.y = y_start;
+                m_snow[i].pos.z = pos_z;
                 m_snow[i].start = time;
                 m_snow[i].velocity = glm::vec3(0);
-                m_snow[i].gravity = glm::vec3((float)(rand()%200/1000.0f - 0.01),
-                                              -0.3,
-                                              (float)(rand()%100/1000.0f - 0.01));
+                m_snow[i].gravity = glm::vec3((0.3 * pos_x + 4 * 0.3 * pos_z) * .05f,
+                                             -0.3f,
+                                             (-3 * 0.3 * pos_x - 0.3 * pos_z) * .05f);
             }
         } else {
             int time_interval = time - m_snow[i].start;
@@ -177,15 +175,14 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
             }
             bool isAlived = updateSnow(m_snow[i]);
             m_snow[i].flag = isAlived;
-            /*
-            float height_limit = m_terrain->getPosition(m_snow[i].x, m_snow[i].z).y - 1.5f;
-            if(m_snow[i].current_height < height_limit){
-                m_snow[i].flag = false;
-            }
-            */
+            auto pos_x = m_snow[i].pos.x;
+            auto pos_z = m_snow[i].pos.z;
+            m_snow[i].gravity = glm::vec3((0.3 * pos_x + 4 * 0.3 * pos_z) * .05f,
+                                          -0.3f,
+                                          (-3 * 0.3 * pos_x - 0.3 * pos_z) * .05f);
         }
     }
-    if(total != 30){
+    if(total > 900){
         total = 1800 - 30 * time;
     }
 
@@ -196,11 +193,12 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
 
 bool SceneviewScene::updateSnow(Snow& sw){
     sw.velocity += sw.gravity * (float)dt;
-        //std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
-        sw.pos += sw.velocity * (float)dt;
-        // std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
-        //sw.elapsedTime += dt;
-        return sw.pos.y >= -1.5;
+    sw.velocity.y = sw.velocity.y < terminal_speed ? terminal_speed : sw.velocity.y;
+    //std::cout<<"sw.velocity: "<<glm::to_string(sw.velocity)<<std::endl;
+    sw.pos += sw.velocity * (float)dt;
+    // std::cout<<"sw.pos: "<<glm::to_string(sw.pos)<<std::endl;
+    //sw.elapsedTime += dt;
+    return sw.pos.y >= -1.5 && abs(sw.pos.x) <= 5.5 && abs(sw.pos.z) <= 5.5;
 }
 
 
@@ -233,7 +231,7 @@ void SceneviewScene::renderGeometry() {
     }
 
     m_phongShader->applyMaterial(getSnow().material);
-    for(int i = 0; i< 1000; i++){
+    for(int i = 0; i < int(m_snow.size()); i++){
         if(m_snow[i].flag){
             //glm::mat4 m = glm::translate(glm::vec3((float)m_snow[i].x / 10.0f - 5.0f, m_snow[i].current_height,(float)m_snow[i].z / 10.0f - 5.0f)) * glm::scale(glm::vec3(1/20.f));
              glm::mat4 m = glm::translate(m_snow[i].pos) * glm::scale(glm::vec3(1/20.f));

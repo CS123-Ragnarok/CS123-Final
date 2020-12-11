@@ -111,8 +111,8 @@ private:
      int m_time;
      int total = 1800;
      float y_start = 5.0;
-     float speed = 1.f;
-     int tree_number = 20;
+     float terminal_speed = -1.f;
+     int tree_number = 200;
 
 };
 
