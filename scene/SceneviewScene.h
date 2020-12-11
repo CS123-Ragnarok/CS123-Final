@@ -7,7 +7,7 @@
 #include "shapes/CylinderShape.h"
 #include "shapes/SphereShape.h"
 #include "lib/CS123SceneData.h"
-#include "src_blin/MeshGenerator.h"
+#include "lsystem/MeshGenerator.h"
 #include "camera/Camera.h"
 #include "terrain/terrain.h"
 
@@ -15,6 +15,16 @@
 #include <QTimer>
 
 #include <memory>
+
+#define dt 0.0167
+
+struct Snow {
+    glm::vec3 pos;
+    glm::vec3 velocity;
+    glm::vec3 gravity;
+    bool flag;
+    int start;
+};
 
 
 namespace CS123 { namespace GL {
@@ -44,7 +54,7 @@ public:
     SceneviewScene();
     virtual ~SceneviewScene();
 
-    virtual void render(Camera * camera);
+    virtual void render(Camera * camera, int time, int mili);
 
 
     // Use this method to set an internal selection, based on the (x, y) position of the mouse
@@ -56,6 +66,7 @@ protected:
 private:
 
     void loadPhongShader();
+    bool updateSnow(Snow& sw);
 
 
     void setSceneUniforms(Camera * camera);
@@ -63,11 +74,13 @@ private:
     void setLights();
     void renderGeometry();
 
+    void genTrees();
     void paintTrees();
     void paintTree(glm::vec4 place, glm::vec4 dir, std::string lTree, float scale, float angle);
 
     CS123ScenePrimitive getBranch();
     CS123ScenePrimitive getLeave();
+    CS123ScenePrimitive getSnow();
 
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
@@ -75,7 +88,6 @@ private:
     std::unique_ptr<CS123::GL::Shader> m_normalsShader;
     std::unique_ptr<CS123::GL::Shader> m_normalsArrowShader;
 
-    std::unique_ptr<MeshGenerator> m_tree;
     std::unique_ptr<Terrain> m_terrain;
 
     std::unique_ptr<CubeShape> m_cube;
@@ -91,9 +103,16 @@ private:
      std::vector<glm::mat4> m_trans;
 
      CS123SceneLightData m_testLight;
+     std::vector<std::unique_ptr<MeshGenerator>> m_trees;
+     std::vector<glm::vec3> m_trees_loc;
 
+     std::vector<struct Snow> m_snow;
 
-
+     int m_time;
+     int total = 1800;
+     float y_start = 5.0;
+     float terminal_speed = -1.f;
+     int tree_number = 200;
 
 };
 

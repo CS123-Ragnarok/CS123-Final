@@ -6,7 +6,7 @@
 #include <iostream>
 
 View::View(QWidget *parent) : QGLWidget(ViewFormat(), parent),
-    m_time(), m_timer(), m_captureMouse(false), m_defaultOrbitingCamera(new OrbitingCamera())
+    m_time(), m_timer(), m_captureMouse(false), m_defaultOrbitingCamera(new OrbitingCamera()), m_frame_count(0)
 {
     // View needs all mouse move events, not just mouse drag events
     setMouseTracking(true);
@@ -65,7 +65,7 @@ void View::paintGL() {
     float ratio = static_cast<QGuiApplication *>(QCoreApplication::instance())->devicePixelRatio();
     glViewport(0, 0, width() * ratio, height() * ratio);
     m_defaultOrbitingCamera.get()->setAspectRatio(static_cast<float>(width()) / static_cast<float>(height()));
-    m_scene->render(getCamera());
+    m_scene->render(getCamera(), m_time.second(), m_time.msec());
     //m_terrain->render(getCamera());
 }
 
@@ -98,7 +98,6 @@ void View::mouseMoveEvent(QMouseEvent *event) {
         if (!deltaX && !deltaY) return;
         QCursor::setPos(mapToGlobal(QPoint(width() / 2, height() / 2)));
 
-        // TODO: Handle mouse movements here
     }
     if (m_isDragging) {
         m_defaultOrbitingCamera.get()->mouseDragged(event->x(), event->y());
@@ -131,7 +130,12 @@ void View::keyReleaseEvent(QKeyEvent *event) {
 
 void View::tick() {
     // Get the number of seconds since the last tick (variable update rate)
+    m_frame_count += 1;
     float seconds = m_time.restart() * 0.001f;
+    if (m_frame_count == 60) {
+        std::cout << "Current FPS: " << 1.f / seconds << std::endl;
+        m_frame_count = 0;
+    }
 
     // TODO: Implement the demo update here
 

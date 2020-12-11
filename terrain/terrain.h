@@ -20,13 +20,14 @@ public:
     void draw();
     void drawTop();
     void drawElse();
-    glm::vec3 getPosition(int row, int col);
-    glm::vec3 getNormal(int row, int col);
+    glm::vec3 getPosition(float row, float col);
+    glm::vec3 getNormal(float row, float col);
 
 private:
     void genSides();
     void loadPhongShader();
     float randValue(int row, int col);
+    bool ifRock(glm::vec3 nor);
 
     std::unique_ptr<OpenGLShape> m_top;
     std::unique_ptr<OpenGLShape> m_front;
@@ -35,6 +36,7 @@ private:
     std::unique_ptr<OpenGLShape> m_right;
     std::unique_ptr<OpenGLShape> m_bot;
     const float m_numRows, m_numCols;
+    const float waterLevel = -0.4f;
 
     std::unique_ptr<CS123::GL::CS123Shader> m_phongShader;
 

@@ -26,8 +26,7 @@ namespace CS123 { namespace GL { namespace ShaderAttrib {
 
 
     // Starting at this index,
-    const GLuint SPECIAL0 = 9;
-
+    const GLuint TERRAIN = 9;
 
 
 }}}
