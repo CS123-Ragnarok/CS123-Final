@@ -20,8 +20,6 @@
 
 using namespace CS123::GL;
 
-
-
 SceneviewScene::SceneviewScene()
 {
     loadPhongShader();
@@ -180,8 +178,8 @@ void SceneviewScene::render(Camera * camera, int time, int mili) {
             }
         }
     }
-    if(total != 10){
-        total = 600 - 10 * time;
+    if(total != 30){
+        total = 1800 - 30 * time;
     }
 
     renderGeometry();

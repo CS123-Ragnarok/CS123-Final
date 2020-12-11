@@ -109,7 +109,7 @@ private:
      int m_time;
      int total = 60;
      float y_start = 5.0;
-     float speed = 1.f;
+     float speed = .8f;
      int tree_number = 400;
 };
 
